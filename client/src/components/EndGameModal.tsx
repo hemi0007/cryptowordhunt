@@ -63,8 +63,8 @@ const EndGameModal: React.FC<EndGameModalProps> = ({ score, foundWords, totalWor
 
   // Share result directly on X (Twitter)
   const shareResult = () => {
-    // Prepare share text with hashtags for better visibility
-    const shareText = `I just scored ${score} points finding ${foundWords}/${totalWords} crypto words in ChainWords! Can you beat my score? #ChainWords #CryptoBros #ToTheMoon`;
+    // Prepare share text with hashtags and emojis for better visibility
+    const shareText = `🚀 I just scored ${score} points finding ${foundWords}/${totalWords} crypto words in ChainWords! 💎🙌 Can you beat my score? 🔥🏆 #ChainWords #CryptoBros #ToTheMoon 🌕 #Bitcoin ${isSuccess ? '📈💰' : '💪😎'}`;
     
     // Always use direct X (Twitter) share URL
     // This will open Twitter's compose tweet page with the pre-filled text
