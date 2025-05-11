@@ -8,9 +8,10 @@ import { CRYPTO_WORDS } from "../lib/constants";
 interface WordSearchGameProps {
   onStatsUpdate: (score: number, foundWordsCount: number, totalWords: number) => void;
   timeRemaining: number;
+  onTimePause?: (isPaused: boolean) => void;
 }
 
-const WordSearchGame: React.FC<WordSearchGameProps> = ({ onStatsUpdate, timeRemaining }) => {
+const WordSearchGame: React.FC<WordSearchGameProps> = ({ onStatsUpdate, timeRemaining, onTimePause }) => {
   const { end } = useGame();
   const { playHit, playSuccess } = useAudio();
   const { 
@@ -32,6 +33,11 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({ onStatsUpdate, timeRema
   const [boostCooldown, setBoostCooldown] = useState(false);
   const [visionActive, setVisionActive] = useState(false);
   const [visionCooldown, setVisionCooldown] = useState(false);
+  const [miningActive, setMiningActive] = useState(false);
+  const [miningCooldown, setMiningCooldown] = useState(false);
+  const [fudShieldActive, setFudShieldActive] = useState(false);
+  const [fudShieldCooldown, setFudShieldCooldown] = useState(false);
+  const [scoreMultiplier, setScoreMultiplier] = useState(1);
   
   const gridRef = useRef<HTMLDivElement>(null);
   
@@ -126,7 +132,9 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({ onStatsUpdate, timeRema
     if (result) {
       // Word found
       playSuccess();
-      setScore(prevScore => prevScore + result.word.length * 10);
+      // Apply score multiplier if mining boost is active
+      const wordScore = result.word.length * 10 * scoreMultiplier;
+      setScore(prevScore => prevScore + wordScore);
     } else {
       // Word not found
       playHit();
@@ -200,6 +208,53 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({ onStatsUpdate, timeRema
     setTimeout(() => setVisionCooldown(false), 30000); // 30 sec cooldown
   };
   
+  // Handle Mining Boost power-up (increases score multiplier)
+  const handleMining = () => {
+    if (miningCooldown) return;
+    
+    setMiningActive(true);
+    // Set score multiplier to 2x
+    setScoreMultiplier(2);
+    
+    // Create visual feedback (glowing effect on score)
+    // This would be handled in the parent component
+    
+    // Turn off after 30 seconds
+    setTimeout(() => {
+      setMiningActive(false);
+      setScoreMultiplier(1);
+    }, 30000);
+    
+    // Set cooldown
+    setMiningCooldown(true);
+    setTimeout(() => setMiningCooldown(false), 60000); // 60 sec cooldown
+  };
+  
+  // Handle FUD Shield power-up (pauses timer)
+  const handleFudShield = () => {
+    if (fudShieldCooldown) return;
+    
+    setFudShieldActive(true);
+    
+    // Pause the timer by notifying parent component
+    if (onTimePause) {
+      onTimePause(true);
+    }
+    
+    // Turn off after 10 seconds
+    setTimeout(() => {
+      setFudShieldActive(false);
+      // Resume the timer
+      if (onTimePause) {
+        onTimePause(false);
+      }
+    }, 10000);
+    
+    // Set cooldown
+    setFudShieldCooldown(true);
+    setTimeout(() => setFudShieldCooldown(false), 45000); // 45 sec cooldown
+  };
+  
   // Ensure the grid is always square and responsive
   const gridStyle = {
     gridTemplateColumns: `repeat(${grid.length}, 1fr)`,
@@ -269,7 +324,7 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({ onStatsUpdate, timeRema
         </div>
         
         {/* Power-ups */}
-        <div className="flex justify-center gap-4 mt-6">
+        <div className="flex flex-wrap justify-center gap-4 mt-6">
           <motion.button
             className={`power-up px-4 py-2 rounded-lg flex items-center gap-2 ${boostActive || boostCooldown ? 'bg-muted' : 'bg-blue-600'}`}
             whileHover={{ scale: 1.05 }}
@@ -290,6 +345,30 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({ onStatsUpdate, timeRema
           >
             <span role="img" aria-label="Diamond">💎</span> Diamond Vision
             {visionCooldown && <span className="text-xs">(cooldown)</span>}
+          </motion.button>
+          
+          <motion.button
+            className={`power-up px-4 py-2 rounded-lg flex items-center gap-2 ${miningActive || miningCooldown ? 'bg-muted' : 'bg-amber-600'}`}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleMining}
+            disabled={miningActive || miningCooldown}
+          >
+            <span role="img" aria-label="Mining">⛏️</span> Mining Boost
+            {miningActive && <span className="text-xs ml-1 text-green-400">(2x)</span>}
+            {miningCooldown && !miningActive && <span className="text-xs">(cooldown)</span>}
+          </motion.button>
+          
+          <motion.button
+            className={`power-up px-4 py-2 rounded-lg flex items-center gap-2 ${fudShieldActive || fudShieldCooldown ? 'bg-muted' : 'bg-red-600'}`}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleFudShield}
+            disabled={fudShieldActive || fudShieldCooldown}
+          >
+            <span role="img" aria-label="Shield">🛡️</span> FUD Shield
+            {fudShieldActive && <span className="text-xs ml-1 text-green-400">(active)</span>}
+            {fudShieldCooldown && !fudShieldActive && <span className="text-xs">(cooldown)</span>}
           </motion.button>
         </div>
       </div>
