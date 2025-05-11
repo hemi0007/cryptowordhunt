@@ -61,9 +61,14 @@ const GamePage = () => {
     setTotalWords(total);
   };
   
-  // Handle timer pause/resume from power-ups
-  const handleTimerPause = (isPaused: boolean) => {
+  // Handle timer pause/resume from power-ups and other power-up states
+  const handleTimerPause = (isPaused: boolean, powerUpStates?: any) => {
     setTimerPaused(isPaused);
+    
+    // Update mining boost state if provided
+    if (powerUpStates && typeof powerUpStates.miningActive !== 'undefined') {
+      setMiningActive(powerUpStates.miningActive);
+    }
   };
 
   return (
@@ -99,9 +104,9 @@ const GamePage = () => {
             <div className="text-xl font-mono neon-green">{foundWordsCount}/{totalWords}</div>
           </div>
           
-          <div className="text-center">
+          <div className={`text-center ${timerPaused ? 'fud-shield-active' : ''}`}>
             <div className="text-sm uppercase tracking-wide text-muted-foreground">Time</div>
-            <div className={`text-xl font-mono ${timerPaused ? "text-amber-500" : timer <= 10 ? "text-red-500" : "neon-blue"}`}>
+            <div className={`text-xl font-mono timer-value ${timerPaused ? "text-amber-500" : timer <= 10 ? "text-red-500" : "neon-blue"}`}>
               {formatTime(timer)} {timerPaused && <span className="text-xs">(paused)</span>}
             </div>
           </div>
