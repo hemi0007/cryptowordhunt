@@ -183,6 +183,26 @@
   cursor: not-allowed;
 }
 
+.mining-active .score-value {
+  animation: pulse-glow 1.5s infinite alternate;
+  color: #ffcc00;
+}
+
+.fud-shield-active .timer-value {
+  animation: shield-glow 1.5s infinite alternate;
+  position: relative;
+}
+
+@keyframes pulse-glow {
+  0% { text-shadow: 0 0 5px rgba(255, 204, 0, 0.7); }
+  100% { text-shadow: 0 0 15px rgba(255, 204, 0, 1), 0 0 30px rgba(255, 204, 0, 0.5); }
+}
+
+@keyframes shield-glow {
+  0% { text-shadow: 0 0 5px rgba(255, 100, 0, 0.7); }
+  100% { text-shadow: 0 0 15px rgba(255, 100, 0, 1), 0 0 30px rgba(255, 100, 0, 0.5); }
+}
+
 /* Background crypto symbols */
 .crypto-icons-bg {
   position: fixed;

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useGame } from "../lib/stores/useGame";
 import WordSearchGame from "./WordSearchGame";
@@ -10,26 +10,42 @@ const GamePage = () => {
   const [score, setScore] = useState(0);
   const [foundWordsCount, setFoundWordsCount] = useState(0);
   const [totalWords, setTotalWords] = useState(0);
+  const [timerPaused, setTimerPaused] = useState(false);
+  const [miningActive, setMiningActive] = useState(false);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
   
   // Handle timer countdown
   useEffect(() => {
     if (phase !== "playing") return;
     
-    // Set up timer
-    const interval = setInterval(() => {
-      setTimer((prev) => {
-        if (prev <= 1) {
-          // Time's up
-          clearInterval(interval);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
+    // Clear any existing interval
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+    
+    // Set up timer only if not paused
+    if (!timerPaused) {
+      intervalRef.current = setInterval(() => {
+        setTimer((prev) => {
+          if (prev <= 1) {
+            // Time's up
+            if (intervalRef.current) {
+              clearInterval(intervalRef.current);
+            }
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
 
     // Clean up on unmount
-    return () => clearInterval(interval);
-  }, [phase]);
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [phase, timerPaused]);
 
   // Format time as MM:SS
   const formatTime = (seconds: number) => {
@@ -43,6 +59,11 @@ const GamePage = () => {
     setScore(newScore);
     setFoundWordsCount(found);
     setTotalWords(total);
+  };
+  
+  // Handle timer pause/resume from power-ups
+  const handleTimerPause = (isPaused: boolean) => {
+    setTimerPaused(isPaused);
   };
 
   return (
@@ -68,9 +89,9 @@ const GamePage = () => {
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.2 }}
         >
-          <div className="text-center">
+          <div className={`text-center ${miningActive ? 'mining-active' : ''}`}>
             <div className="text-sm uppercase tracking-wide text-muted-foreground">Score</div>
-            <div className="text-xl font-mono neon-green">{score}</div>
+            <div className="text-xl font-mono neon-green score-value">{score}</div>
           </div>
           
           <div className="text-center">
@@ -80,8 +101,8 @@ const GamePage = () => {
           
           <div className="text-center">
             <div className="text-sm uppercase tracking-wide text-muted-foreground">Time</div>
-            <div className={`text-xl font-mono ${timer <= 10 ? "text-red-500" : "neon-blue"}`}>
-              {formatTime(timer)}
+            <div className={`text-xl font-mono ${timerPaused ? "text-amber-500" : timer <= 10 ? "text-red-500" : "neon-blue"}`}>
+              {formatTime(timer)} {timerPaused && <span className="text-xs">(paused)</span>}
             </div>
           </div>
         </motion.div>
@@ -96,6 +117,7 @@ const GamePage = () => {
         <WordSearchGame 
           onStatsUpdate={handleStatsUpdate} 
           timeRemaining={timer}
+          onTimePause={handleTimerPause}
         />
       </motion.div>
 

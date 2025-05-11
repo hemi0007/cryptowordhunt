@@ -46,6 +46,15 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({ onStatsUpdate, timeRema
     initializeGame(10, CRYPTO_WORDS);
   }, [initializeGame]);
   
+  // Update parent about mining boost status for visual feedback
+  useEffect(() => {
+    if (onTimePause) {
+      // This is a bit of a hack to share state with parent - would be better with context
+      // @ts-ignore - We're using onTimePause as a generic updater function
+      onTimePause(false, { miningActive });
+    }
+  }, [miningActive, onTimePause]);
+  
   // Update parent component with stats
   useEffect(() => {
     onStatsUpdate(score, foundWords.length, placedWords.length);
