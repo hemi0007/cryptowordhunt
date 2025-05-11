@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Confetti from "react-confetti";
 import { useGame } from "../lib/stores/useGame";
-import IconGenerator from "./IconGenerator";
 
 interface EndGameModalProps {
   score: number;
@@ -115,10 +114,12 @@ const EndGameModal: React.FC<EndGameModalProps> = ({ score, foundWords, totalWor
           </div>
           
           <div className="flex justify-center mb-6">
-            <IconGenerator 
-              iconType={isSuccess ? "cryptoBro" : "lambo"} 
-              width={120} 
+            <img 
+              src="/images/rich.png" 
+              alt="Crypto Rich" 
+              width={180} 
               height={120} 
+              className="object-contain"
             />
           </div>
           
