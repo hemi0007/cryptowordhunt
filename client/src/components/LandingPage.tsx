@@ -76,7 +76,7 @@ const LandingPage = () => {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
         >
-          Find the next 100x coins in the puzzle grid!
+          Hunt hidden gems and uncover your next crypto moonshot!
         </motion.p>
       </header>
 
