@@ -22,7 +22,9 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({ onStatsUpdate, timeRema
     highlightPath,
     placedWords,
     foundWords, 
-    initializeGame
+    initializeGame,
+    currentHighlight,
+    currentHighlightColor
   } = useWordSearch();
   
   const [selectedCells, setSelectedCells] = useState<{row: number; col: number}[]>([]);
