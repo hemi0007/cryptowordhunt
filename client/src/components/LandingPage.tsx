@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Slider } from "./ui/slider";
 import { useAudio } from "../lib/stores/useAudio";
 import { useGame } from "../lib/stores/useGame";
@@ -8,7 +7,15 @@ import IconGenerator from "./IconGenerator";
 
 const LandingPage = () => {
   const { start } = useGame();
-  const { backgroundMusic, toggleMute, isMuted } = useAudio();
+  const { backgroundMusic, toggleMute, isMuted, setVolume } = useAudio();
+  const [activeTab, setActiveTab] = useState<"howToPlay" | "soundSettings" | null>(null);
+  const [volume, setVolumeState] = useState(useAudio.getState().volume);
+  
+  // Function to handle volume changes
+  const handleVolumeChange = (newVolume: number) => {
+    setVolumeState(newVolume);
+    setVolume(newVolume);
+  };
   const [leaderboard, setLeaderboard] = useState<{ name: string; score: number }[]>([]);
 
   // Load any saved leaderboard data from localStorage
@@ -100,13 +107,32 @@ const LandingPage = () => {
             </motion.button>
             
             <div className="mt-6">
-              <Tabs defaultValue="howToPlay" className="w-full max-w-sm mx-auto">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="howToPlay">How to Play</TabsTrigger>
-                  <TabsTrigger value="soundSettings">Sound Settings</TabsTrigger>
-                </TabsList>
+              <div className="flex gap-4 justify-center">
+                <motion.button
+                  className="py-2 px-4 text-sm font-medium rounded-lg bg-primary/20 hover:bg-primary/30"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setActiveTab(activeTab === "howToPlay" ? null : "howToPlay")}
+                >
+                  How to Play
+                </motion.button>
                 
-                <TabsContent value="howToPlay" className="p-4 border rounded-md mt-2 bg-card/50">
+                <motion.button
+                  className="py-2 px-4 text-sm font-medium rounded-lg bg-primary/20 hover:bg-primary/30"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setActiveTab(activeTab === "soundSettings" ? null : "soundSettings")}
+                >
+                  Sound Settings
+                </motion.button>
+              </div>
+              
+              {activeTab === "howToPlay" && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-4 border rounded-md mt-2 bg-card/50"
+                >
                   <h3 className="font-bold text-sm mb-2 text-primary">Game Instructions:</h3>
                   <ol className="text-sm space-y-2 list-decimal pl-5">
                     <li>Find crypto-themed words in the grid</li>
@@ -115,9 +141,15 @@ const LandingPage = () => {
                     <li>⛏️ Mining Boost: 2x score for 30 seconds</li>
                     <li>🛡️ FUD Shield: Pauses timer for 10 seconds</li>
                   </ol>
-                </TabsContent>
-                
-                <TabsContent value="soundSettings" className="p-4 border rounded-md mt-2 bg-card/50 space-y-4">
+                </motion.div>
+              )}
+              
+              {activeTab === "soundSettings" && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-4 border rounded-md mt-2 bg-card/50 space-y-4"
+                >
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">Game Sound:</span>
                     <button 
@@ -131,18 +163,18 @@ const LandingPage = () => {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium">Volume:</span>
-                      <span className="text-xs">{Math.round(useAudio.getState().volume * 100)}%</span>
+                      <span className="text-xs">{Math.round(volume * 100)}%</span>
                     </div>
                     <Slider 
-                      defaultValue={[useAudio.getState().volume * 100]} 
+                      defaultValue={[volume * 100]} 
                       max={100} 
                       step={10}
                       disabled={isMuted}
-                      onValueChange={(value) => useAudio.getState().setVolume(value[0] / 100)}
+                      onValueChange={(value) => handleVolumeChange(value[0] / 100)}
                     />
                   </div>
-                </TabsContent>
-              </Tabs>
+                </motion.div>
+              )}
             </div>
           </div>
           
