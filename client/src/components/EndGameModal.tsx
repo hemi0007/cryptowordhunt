@@ -64,17 +64,19 @@ const EndGameModal: React.FC<EndGameModalProps> = ({ score, foundWords, totalWor
 
   // Share result on social media
   const shareResult = () => {
+    // Prepare share text with hashtags for better visibility
+    const shareText = `I just scored ${score} points finding ${foundWords}/${totalWords} crypto words in ChainWords! Can you beat my score? #ChainWords #CryptoBros`;
+    
     // Use Web Share API if available
     if (navigator.share) {
       navigator.share({
         title: "ChainWords - Crypto Puzzle",
-        text: `I just scored ${score} points finding ${foundWords}/${totalWords} crypto words in ChainWords! Can you beat my score?`,
+        text: shareText,
         url: window.location.href,
       }).catch((error) => console.log("Sharing failed:", error));
     } else {
-      // Fallback for browsers that don't support Web Share API
-      const shareText = `I just scored ${score} points finding ${foundWords}/${totalWords} crypto words in ChainWords! Can you beat my score?`;
-      window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(window.location.href)}`, "_blank");
+      // X (formerly Twitter) share URL
+      window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(window.location.href)}`, "_blank");
     }
   };
 
@@ -157,7 +159,7 @@ const EndGameModal: React.FC<EndGameModalProps> = ({ score, foundWords, totalWor
               whileTap={{ scale: 0.97 }}
               onClick={shareResult}
             >
-              <i className="fas fa-share-alt"></i> Flex On Twitter
+              <i className="fas fa-share-alt"></i> Flex On X
             </motion.button>
             
             <motion.button
