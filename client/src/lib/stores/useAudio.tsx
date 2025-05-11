@@ -5,6 +5,7 @@ interface AudioState {
   hitSound: HTMLAudioElement | null;
   successSound: HTMLAudioElement | null;
   isMuted: boolean;
+  volume: number;
   
   // Setter functions
   setBackgroundMusic: (music: HTMLAudioElement) => void;
@@ -13,6 +14,7 @@ interface AudioState {
   
   // Control functions
   toggleMute: () => void;
+  setVolume: (volume: number) => void;
   playHit: () => void;
   playSuccess: () => void;
 }
@@ -22,24 +24,45 @@ export const useAudio = create<AudioState>((set, get) => ({
   hitSound: null,
   successSound: null,
   isMuted: true, // Start muted by default
+  volume: 0.3, // Default volume
   
   setBackgroundMusic: (music) => set({ backgroundMusic: music }),
   setHitSound: (sound) => set({ hitSound: sound }),
   setSuccessSound: (sound) => set({ successSound: sound }),
   
+  setVolume: (volume) => {
+    const { backgroundMusic, isMuted } = get();
+    
+    set({ volume });
+    
+    if (backgroundMusic && !isMuted) {
+      backgroundMusic.volume = volume;
+    }
+  },
+  
   toggleMute: () => {
-    const { isMuted } = get();
+    const { isMuted, backgroundMusic, volume } = get();
     const newMutedState = !isMuted;
     
-    // Just update the muted state
+    // Update the muted state
     set({ isMuted: newMutedState });
+    
+    // Apply to background music if it exists
+    if (backgroundMusic) {
+      if (newMutedState) {
+        backgroundMusic.pause();
+      } else {
+        backgroundMusic.volume = volume;
+        backgroundMusic.play().catch(err => console.log("Autoplay prevented:", err));
+      }
+    }
     
     // Log the change
     console.log(`Sound ${newMutedState ? 'muted' : 'unmuted'}`);
   },
   
   playHit: () => {
-    const { hitSound, isMuted } = get();
+    const { hitSound, isMuted, volume } = get();
     if (hitSound) {
       // If sound is muted, don't play anything
       if (isMuted) {
@@ -49,7 +72,7 @@ export const useAudio = create<AudioState>((set, get) => ({
       
       // Clone the sound to allow overlapping playback
       const soundClone = hitSound.cloneNode() as HTMLAudioElement;
-      soundClone.volume = 0.3;
+      soundClone.volume = volume;
       soundClone.play().catch(error => {
         console.log("Hit sound play prevented:", error);
       });
@@ -57,7 +80,7 @@ export const useAudio = create<AudioState>((set, get) => ({
   },
   
   playSuccess: () => {
-    const { successSound, isMuted } = get();
+    const { successSound, isMuted, volume } = get();
     if (successSound) {
       // If sound is muted, don't play anything
       if (isMuted) {
@@ -66,6 +89,7 @@ export const useAudio = create<AudioState>((set, get) => ({
       }
       
       successSound.currentTime = 0;
+      successSound.volume = volume;
       successSound.play().catch(error => {
         console.log("Success sound play prevented:", error);
       });

@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { Slider } from "./ui/slider";
 import { useAudio } from "../lib/stores/useAudio";
 import { useGame } from "../lib/stores/useGame";
 import IconGenerator from "./IconGenerator";
@@ -97,13 +99,50 @@ const LandingPage = () => {
               PLAY NOW 🚀
             </motion.button>
             
-            <div className="mt-4">
-              <button 
-                onClick={toggleMute} 
-                className="text-sm text-muted-foreground hover:text-foreground"
-              >
-                {isMuted ? "🔇 Unmute" : "🔊 Mute"} Sound
-              </button>
+            <div className="mt-6">
+              <Tabs defaultValue="howToPlay" className="w-full max-w-sm mx-auto">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="howToPlay">How to Play</TabsTrigger>
+                  <TabsTrigger value="soundSettings">Sound Settings</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="howToPlay" className="p-4 border rounded-md mt-2 bg-card/50">
+                  <h3 className="font-bold text-sm mb-2 text-primary">Game Instructions:</h3>
+                  <ol className="text-sm space-y-2 list-decimal pl-5">
+                    <li>Find crypto-themed words in the grid</li>
+                    <li>Drag to select letters horizontally, vertically, or diagonally</li>
+                    <li>Use power-ups to help you find all words before time runs out</li>
+                    <li>⛏️ Mining Boost: 2x score for 30 seconds</li>
+                    <li>🛡️ FUD Shield: Pauses timer for 10 seconds</li>
+                  </ol>
+                </TabsContent>
+                
+                <TabsContent value="soundSettings" className="p-4 border rounded-md mt-2 bg-card/50 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Game Sound:</span>
+                    <button 
+                      onClick={toggleMute} 
+                      className="text-sm px-3 py-1 bg-secondary rounded-md"
+                    >
+                      {isMuted ? "🔇 Unmute" : "🔊 Mute"}
+                    </button>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Volume:</span>
+                      <span className="text-xs">{Math.round(useAudio.getState().volume * 100)}%</span>
+                    </div>
+                    <Slider 
+                      defaultValue={[useAudio.getState().volume * 100]} 
+                      max={100} 
+                      step={10}
+                      disabled={isMuted}
+                      onValueChange={(value) => useAudio.getState().setVolume(value[0] / 100)}
+                    />
+                  </div>
+                </TabsContent>
+              </Tabs>
             </div>
           </div>
           
