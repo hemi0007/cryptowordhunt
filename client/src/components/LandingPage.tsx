@@ -218,10 +218,6 @@ const LandingPage = () => {
         </div>
       </motion.div>
       
-      {/* Mascot */}
-      <div className="mt-12 mb-4">
-        <IconGenerator iconType="cryptoBro" width={180} height={180} />
-      </div>
       
       {/* Footer */}
       <footer className="mt-auto py-4 text-center w-full text-muted-foreground text-sm">
