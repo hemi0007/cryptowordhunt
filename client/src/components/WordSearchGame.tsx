@@ -171,6 +171,7 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({ onStatsUpdate, timeRema
       
       if (wordPath) {
         setBoostActive(true);
+        console.log("Boost activated - showing hint for a word");
         
         // Highlight a portion of the word
         const pathLength = wordPath.length;
@@ -178,10 +179,12 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({ onStatsUpdate, timeRema
         
         // Flash the hint for a few seconds
         highlightPath(hintCells, '#FFC107');
+        playHit(); // Play sound for feedback
         
         setTimeout(() => {
           setBoostActive(false);
           resetSelection();
+          console.log("Boost hint ended");
         }, 2000);
         
         // Set cooldown
@@ -196,11 +199,15 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({ onStatsUpdate, timeRema
     if (visionCooldown) return;
     
     setVisionActive(true);
+    console.log("Diamond Vision activated - revealing all unsolved words");
+    playSuccess(); // Play success sound for feedback
     
-    // Temporarily pause the timer (would need to coordinate with parent)
     // Show all words for a brief moment
     const unsolvedWords = placedWords.filter(word => !foundWords.includes(word));
+    console.log(`Revealing ${unsolvedWords.length} unsolved words`);
     
+    // This is important: The highlightPath function adds to the currentHighlight array
+    // which is used in the grid cell rendering to show highlights
     for (const word of unsolvedWords) {
       const wordPath = wordPositions[word];
       if (wordPath) {
@@ -212,6 +219,7 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({ onStatsUpdate, timeRema
     setTimeout(() => {
       setVisionActive(false);
       resetSelection();
+      console.log("Diamond Vision deactivated");
     }, 3000);
     
     // Set cooldown
@@ -226,14 +234,26 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({ onStatsUpdate, timeRema
     setMiningActive(true);
     // Set score multiplier to 2x
     setScoreMultiplier(2);
+    console.log("Mining Boost activated - 2x score multiplier enabled");
     
-    // Create visual feedback (glowing effect on score)
-    // This would be handled in the parent component
+    // Create visual feedback in the parent component via onTimePause hack
+    if (onTimePause) {
+      // We're using onTimePause as a generic state updater
+      // @ts-ignore - This is intentional to pass along mining state
+      onTimePause(false, { miningActive: true });
+    }
     
     // Turn off after 30 seconds
     setTimeout(() => {
       setMiningActive(false);
       setScoreMultiplier(1);
+      console.log("Mining Boost deactivated - score multiplier reset to 1x");
+      
+      // Update parent component
+      if (onTimePause) {
+        // @ts-ignore - This is intentional to pass along mining state
+        onTimePause(false, { miningActive: false });
+      }
     }, 30000);
     
     // Set cooldown
@@ -246,15 +266,18 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({ onStatsUpdate, timeRema
     if (fudShieldCooldown) return;
     
     setFudShieldActive(true);
+    console.log("FUD Shield activated - pausing timer");
     
     // Pause the timer by notifying parent component
     if (onTimePause) {
+      // The first parameter is the pause state
       onTimePause(true);
     }
     
     // Turn off after 10 seconds
     setTimeout(() => {
       setFudShieldActive(false);
+      console.log("FUD Shield deactivated - resuming timer");
       // Resume the timer
       if (onTimePause) {
         onTimePause(false);
@@ -295,10 +318,21 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({ onStatsUpdate, timeRema
                 return path && path.some(cell => cell.row === rowIndex && cell.col === colIndex);
               });
               
+              // Check if cell is in currently highlighted path (for power-ups)
+              const isHighlighted = currentHighlight.some(
+                cell => cell.row === rowIndex && cell.col === colIndex
+              );
+              
+              // Set style for highlighted cells
+              const highlightStyle = isHighlighted 
+                ? { backgroundColor: currentHighlightColor } 
+                : {};
+              
               return (
                 <motion.div 
                   key={`${rowIndex}-${colIndex}`}
-                  className={`grid-cell ${isSelected ? 'selected' : ''} ${isFound ? 'found' : ''}`}
+                  className={`grid-cell ${isSelected ? 'selected' : ''} ${isFound ? 'found' : ''} ${isHighlighted ? 'highlighted' : ''}`}
+                  style={highlightStyle}
                   onMouseDown={() => handleCellStart(rowIndex, colIndex)}
                   onMouseEnter={() => handleCellMove(rowIndex, colIndex)}
                   onMouseUp={handleCellEnd}
