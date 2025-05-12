@@ -40,18 +40,22 @@ export default function ScoreSubmissionForm({
         totalWords
       };
       
-      // Try to submit to Supabase first
+      // Submit score via server API
       try {
-        await apiRequest({
+        const result = await apiRequest({
           url: '/api/supabase/scores',
           method: 'POST',
           body: scoreData,
           on401: 'throw'
         });
         
-        console.log('Score submitted to Supabase successfully');
-        onScoreSubmitted();
-        return;
+        if (result && result.id) {
+          console.log('Score submitted to Supabase successfully', result);
+          onScoreSubmitted();
+          return;
+        } else {
+          console.warn('Failed to submit score to Supabase (no ID returned), trying fallback');
+        }
       } catch (supabaseErr) {
         console.warn('Failed to submit score to Supabase, trying fallback:', supabaseErr);
       }

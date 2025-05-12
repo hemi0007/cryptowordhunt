@@ -6,9 +6,21 @@ import { log } from './vite';
 const router = Router();
 
 // Create a Supabase client for API routes
+console.log('Initializing Supabase in routes with:');
+console.log('- URL exists:', !!process.env.SUPABASE_URL);
+console.log('- KEY exists:', !!process.env.SUPABASE_KEY);
+console.log('- KEY type:', process.env.SUPABASE_KEY?.startsWith('eyJ') ? 'JWT format' : 'Unknown format');
+
+// Create the client
 const supabase = createClient(
   process.env.SUPABASE_URL || '',
-  process.env.SUPABASE_KEY || ''
+  process.env.SUPABASE_KEY || '',
+  {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false
+    }
+  }
 );
 
 // Type definitions
