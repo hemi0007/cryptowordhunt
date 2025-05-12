@@ -85,4 +85,15 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// Use DbStorage for production, fall back to MemStorage if database connection fails
+let storageImpl: IStorage;
+
+try {
+  storageImpl = new DbStorage();
+  console.log("Using database storage for high scores");
+} catch (error) {
+  console.warn("Failed to initialize database storage, falling back to memory storage:", error);
+  storageImpl = new MemStorage();
+}
+
+export const storage = storageImpl;

@@ -41,7 +41,8 @@ export default function ScoreSubmissionForm({
           score,
           wordsFound,
           totalWords
-        }
+        },
+        on401: 'throw'
       });
       
       onScoreSubmitted();
