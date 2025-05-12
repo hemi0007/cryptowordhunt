@@ -3,8 +3,11 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertHighScoreSchema } from "@shared/schema";
 import { z } from "zod";
+import { supabaseRoutes } from "./supabase-routes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Register Supabase routes
+  app.use(supabaseRoutes);
   // Get top scores
   app.get("/api/scores", async (req: Request, res: Response) => {
     try {
