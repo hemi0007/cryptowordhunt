@@ -1,9 +1,13 @@
 import { createClient } from '@supabase/supabase-js';
 
+// Get environment variables for Supabase
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
+const supabaseKey = import.meta.env.VITE_SUPABASE_KEY as string;
+
 // Create a single supabase client for interacting with your database
 export const supabase = createClient(
-  import.meta.env.SUPABASE_URL || '',
-  import.meta.env.SUPABASE_KEY || ''
+  supabaseUrl, 
+  supabaseKey
 );
 
 // Type definitions for our high scores table

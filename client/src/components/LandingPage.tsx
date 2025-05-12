@@ -4,6 +4,7 @@ import { Slider } from "./ui/slider";
 import { useAudio } from "../lib/stores/useAudio";
 import { useGame } from "../lib/stores/useGame";
 import IconGenerator from "./IconGenerator";
+import { SupabaseTest } from "./SupabaseTest";
 
 const LandingPage = () => {
   const { start } = useGame();
@@ -218,6 +219,18 @@ const LandingPage = () => {
         </div>
       </motion.div>
       
+      
+      {/* Admin Tools (for debugging) */}
+      <div className="w-full max-w-5xl mt-8">
+        <div className="bg-secondary/50 rounded-lg overflow-hidden">
+          <details>
+            <summary className="p-2 cursor-pointer font-mono text-xs">Developer Tools</summary>
+            <div className="p-4">
+              <SupabaseTest />
+            </div>
+          </details>
+        </div>
+      </div>
       
       {/* Footer */}
       <footer className="mt-auto py-4 text-center w-full text-muted-foreground text-sm">
