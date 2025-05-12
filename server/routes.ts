@@ -6,6 +6,14 @@ import { z } from "zod";
 import { supabaseRoutes } from "./supabase-routes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // API endpoint to get Supabase configuration
+  app.get("/api/config/supabase", (req: Request, res: Response) => {
+    res.json({
+      supabaseUrl: process.env.SUPABASE_URL || '',
+      supabaseKey: process.env.SUPABASE_KEY || ''
+    });
+  });
+  
   // Register Supabase routes
   app.use(supabaseRoutes);
   // Get top scores

@@ -1,14 +1,32 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Get environment variables for Supabase
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
-const supabaseKey = import.meta.env.VITE_SUPABASE_KEY as string;
+// Initialize with empty values first
+let supabaseClient = createClient('https://placeholder-url.supabase.co', 'placeholder-key');
 
-// Create a single supabase client for interacting with your database
-export const supabase = createClient(
-  supabaseUrl, 
-  supabaseKey
-);
+// Function to initialize with the correct credentials
+export async function initializeSupabase() {
+  try {
+    // Fetch the configuration from the server
+    const response = await fetch('/api/config/supabase');
+    const { supabaseUrl, supabaseKey } = await response.json();
+    
+    if (supabaseUrl && supabaseKey) {
+      // Re-create the client with the correct credentials
+      supabaseClient = createClient(supabaseUrl, supabaseKey);
+      console.log('Supabase client initialized successfully');
+    } else {
+      console.error('Missing Supabase credentials');
+    }
+  } catch (error) {
+    console.error('Failed to initialize Supabase client:', error);
+  }
+}
+
+// Call the initialization function
+initializeSupabase();
+
+// Export the client for use in the application
+export const supabase = supabaseClient;
 
 // Type definitions for our high scores table
 export interface HighScore {
