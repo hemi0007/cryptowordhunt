@@ -31,14 +31,25 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({ onStatsUpdate, timeRema
   const [isDragging, setIsDragging] = useState(false);
   const [startCell, setStartCell] = useState<{row: number; col: number} | null>(null);
   const [score, setScore] = useState(0);
+  
+  // Power-up active states
   const [boostActive, setBoostActive] = useState(false);
-  const [boostCooldown, setBoostCooldown] = useState(false);
   const [visionActive, setVisionActive] = useState(false);
-  const [visionCooldown, setVisionCooldown] = useState(false);
   const [miningActive, setMiningActive] = useState(false);
-  const [miningCooldown, setMiningCooldown] = useState(false);
   const [fudShieldActive, setFudShieldActive] = useState(false);
+  
+  // Track if power-ups have been used (one-time use)
+  const [boostUsed, setBoostUsed] = useState(false);
+  const [visionUsed, setVisionUsed] = useState(false);
+  const [miningUsed, setMiningUsed] = useState(false);
+  const [fudShieldUsed, setFudShieldUsed] = useState(false);
+  
+  // For backward compatibility, keeping these state variables
+  const [boostCooldown, setBoostCooldown] = useState(false);
+  const [visionCooldown, setVisionCooldown] = useState(false);
+  const [miningCooldown, setMiningCooldown] = useState(false);
   const [fudShieldCooldown, setFudShieldCooldown] = useState(false);
+  
   const [scoreMultiplier, setScoreMultiplier] = useState(1);
   
   const gridRef = useRef<HTMLDivElement>(null);
@@ -160,7 +171,8 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({ onStatsUpdate, timeRema
   
   // Handle Boost power-up
   const handleBoost = () => {
-    if (boostCooldown) return;
+    // Check if already used
+    if (boostUsed) return;
     
     // Find a random word that hasn't been found yet
     const unsolvedWords = placedWords.filter(word => !foundWords.includes(word));
@@ -171,6 +183,7 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({ onStatsUpdate, timeRema
       
       if (wordPath) {
         setBoostActive(true);
+        setBoostUsed(true); // Mark as used (one-time use)
         console.log("Boost activated - showing hint for a word");
         
         // Highlight a portion of the word
@@ -187,9 +200,8 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({ onStatsUpdate, timeRema
           console.log("Boost hint ended");
         }, 2000);
         
-        // Set cooldown
+        // Set cooldown for UI feedback
         setBoostCooldown(true);
-        setTimeout(() => setBoostCooldown(false), 10000); // 10 sec cooldown
       }
     }
   };
