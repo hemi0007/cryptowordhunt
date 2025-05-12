@@ -5,6 +5,7 @@ import { useAudio } from "../lib/stores/useAudio";
 import { useGame } from "../lib/stores/useGame";
 import IconGenerator from "./IconGenerator";
 import { SupabaseTest } from "./SupabaseTest";
+import { HighScoreCard } from "./HighScoreCard";
 
 const LandingPage = () => {
   const { start } = useGame();
@@ -17,24 +18,6 @@ const LandingPage = () => {
     setVolumeState(newVolume);
     setVolume(newVolume);
   };
-  const [leaderboard, setLeaderboard] = useState<{ name: string; score: number }[]>([]);
-
-  // Load any saved leaderboard data from localStorage
-  useEffect(() => {
-    const savedLeaderboard = localStorage.getItem("chainwords_leaderboard");
-    if (savedLeaderboard) {
-      setLeaderboard(JSON.parse(savedLeaderboard));
-    } else {
-      // Default leaderboard
-      setLeaderboard([
-        { name: "DiamondHodler", score: 420 },
-        { name: "MoonLad", score: 369 },
-        { name: "LamboKing", score: 300 },
-        { name: "BitcoinBarry", score: 276 },
-        { name: "CryptoK1ng", score: 248 }
-      ]);
-    }
-  }, []);
 
   // Start background music when component mounts
   useEffect(() => {
@@ -186,32 +169,12 @@ const LandingPage = () => {
         </div>
         
         {/* Right column - Leaderboard */}
-        <div className="bg-secondary rounded-xl p-6 neon-border">
-          <h3 className="text-xl font-bold mb-4 text-center neon-text">
-            🏆 Top Degens This Week
-          </h3>
+        <div className="flex flex-col gap-6">
+          {/* High Score Card */}
+          <HighScoreCard />
           
-          <div className="mb-6">
-            <ul className="space-y-4">
-              {leaderboard.map((entry, index) => (
-                <motion.li 
-                  key={index}
-                  className="flex justify-between items-center border-b border-muted py-2"
-                  initial={{ x: 50, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  transition={{ delay: 0.7 + index * 0.1 }}
-                >
-                  <div className="flex items-center">
-                    <span className="mr-2">{index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : "🔹"}</span>
-                    <span>{entry.name}</span>
-                  </div>
-                  <span className="font-mono neon-green">{entry.score} pts</span>
-                </motion.li>
-              ))}
-            </ul>
-          </div>
-          
-          <div className="mt-4 p-4 bg-muted rounded-lg">
+          {/* Quote Card */}
+          <div className="bg-secondary rounded-xl p-4 neon-border">
             <p className="italic text-center text-sm">
               "YOLOed my way through that puzzle—feeling like a giga-chad!" - @CryptoBro
             </p>

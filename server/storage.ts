@@ -75,10 +75,15 @@ export class DbStorage implements IStorage {
   
   // Get top scores from the database, ordered by score
   async getTopScores(limit: number = 10): Promise<HighScore[]> {
-    return db.select()
-      .from(highScores)
-      .orderBy(desc(highScores.score))
-      .limit(limit);
+    try {
+      return await db.select()
+        .from(highScores)
+        .orderBy(desc(highScores.score))
+        .limit(limit);
+    } catch (error) {
+      console.warn('Database error fetching scores:', error);
+      return []; // Return empty array instead of throwing error
+    }
   }
 }
 

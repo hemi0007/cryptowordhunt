@@ -33,21 +33,41 @@ export default function ScoreSubmissionForm({
       setIsSubmitting(true);
       setError(null);
       
+      const scoreData = {
+        playerName: playerName.trim(),
+        score,
+        wordsFound,
+        totalWords
+      };
+      
+      // Try to submit to Supabase first
+      try {
+        await apiRequest({
+          url: '/api/supabase/scores',
+          method: 'POST',
+          body: scoreData,
+          on401: 'throw'
+        });
+        
+        console.log('Score submitted to Supabase successfully');
+        onScoreSubmitted();
+        return;
+      } catch (supabaseErr) {
+        console.warn('Failed to submit score to Supabase, trying fallback:', supabaseErr);
+      }
+      
+      // Fallback to regular API
       await apiRequest({
         url: '/api/scores',
         method: 'POST',
-        body: {
-          playerName: playerName.trim(),
-          score,
-          wordsFound,
-          totalWords
-        },
+        body: scoreData,
         on401: 'throw'
       });
       
+      console.log('Score submitted to fallback API successfully');
       onScoreSubmitted();
     } catch (err) {
-      console.error('Failed to submit score:', err);
+      console.error('Failed to submit score to both APIs:', err);
       setError('Failed to submit score. Please try again.');
     } finally {
       setIsSubmitting(false);
