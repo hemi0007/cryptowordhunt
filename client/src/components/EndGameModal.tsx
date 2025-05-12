@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Confetti from "react-confetti";
 import { useGame } from "../lib/stores/useGame";
+import ScoreSubmissionForm from "./ScoreSubmissionForm";
+import Leaderboard from "./Leaderboard";
 
 interface EndGameModalProps {
   score: number;
@@ -12,7 +14,7 @@ interface EndGameModalProps {
 const EndGameModal: React.FC<EndGameModalProps> = ({ score, foundWords, totalWords }) => {
   const { restart } = useGame();
   const [isSuccess, setIsSuccess] = useState(false);
-  const [playerName, setPlayerName] = useState("");
+  const [view, setView] = useState<'result' | 'submitScore' | 'leaderboard'>('result');
   const [windowSize, setWindowSize] = useState({
     width: window.innerWidth,
     height: window.innerHeight,
@@ -32,32 +34,25 @@ const EndGameModal: React.FC<EndGameModalProps> = ({ score, foundWords, totalWor
     };
 
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
   }, [foundWords, totalWords]);
 
-  // Save score to leaderboard
-  const saveScore = () => {
-    if (!playerName.trim()) return;
+  // Function to calculate the display rank
+  const calculateRank = () => {
+    const percentage = (foundWords / totalWords) * 100;
     
-    const leaderboardData = localStorage.getItem("chainwords_leaderboard");
-    let leaderboard = leaderboardData ? JSON.parse(leaderboardData) : [];
-    
-    // Add new score
-    leaderboard.push({
-      name: playerName.trim(),
-      score: score
-    });
-    
-    // Sort by score (descending)
-    leaderboard.sort((a: any, b: any) => b.score - a.score);
-    
-    // Keep only top 10
-    leaderboard = leaderboard.slice(0, 10);
-    
-    // Save to localStorage
-    localStorage.setItem("chainwords_leaderboard", JSON.stringify(leaderboard));
-    
-    // Restart game
+    if (percentage >= 90) return "Crypto Whale 🐋";
+    if (percentage >= 75) return "Diamond Hands 💎";
+    if (percentage >= 50) return "HODLer 💰";
+    if (percentage >= 30) return "Paper Hands 📄";
+    return "Nocoiner 🥲";
+  };
+
+  // Handle play again button
+  const handlePlayAgain = () => {
     restart();
   };
 
@@ -71,102 +66,156 @@ const EndGameModal: React.FC<EndGameModalProps> = ({ score, foundWords, totalWor
     window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(shareText)}`, "_blank");
   };
 
-  return (
-    <AnimatePresence>
-      <motion.div
-        className="fixed inset-0 flex items-center justify-center z-50 bg-black/60 backdrop-blur-sm"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-      >
-        {isSuccess && (
-          <Confetti
-            width={windowSize.width}
-            height={windowSize.height}
-            colors={["#00ff00", "#00ffcc", "#ffcc00", "#ff00cc"]}
-            recycle={false}
-            numberOfPieces={200}
-            gravity={0.1}
+  // Handle score submission completed
+  const handleScoreSubmitted = () => {
+    setView('leaderboard');
+  };
+
+  // Render the appropriate view
+  const renderView = () => {
+    switch (view) {
+      case 'submitScore':
+        return (
+          <ScoreSubmissionForm 
+            score={score}
+            wordsFound={foundWords}
+            totalWords={totalWords}
+            onScoreSubmitted={handleScoreSubmitted}
+            onCancel={() => setView('result')}
           />
-        )}
-        
-        <motion.div
-          className="bg-card mx-4 md:mx-0 rounded-xl p-6 w-full max-w-md neon-border"
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: "spring", damping: 15 }}
+        );
+      case 'leaderboard':
+        return (
+          <div className="p-4">
+            <Leaderboard />
+            <div className="mt-6 flex justify-center">
+              <motion.button
+                className="bg-primary text-foreground py-2 px-6 rounded-md"
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={handlePlayAgain}
+              >
+                <i className="fas fa-play mr-2"></i> Play Again
+              </motion.button>
+            </div>
+          </div>
+        );
+      default:
+        return (
+          <>
+            {/* Header with result text */}
+            <div className={`p-6 ${isSuccess ? 'bg-green-900/30' : 'bg-amber-900/30'}`}>
+              <h2 className="text-3xl font-bold text-center mb-2">
+                {isSuccess ? '🚀 Game Complete!' : '⏱️ Time\'s Up!'}
+              </h2>
+              <p className="text-center text-muted-foreground">
+                {isSuccess 
+                  ? 'Great job! You\'ve found enough crypto words.'
+                  : 'Keep practicing! The crypto market is volatile.'}
+              </p>
+            </div>
+            
+            {/* Game statistics */}
+            <div className="p-6">
+              <div className="grid grid-cols-3 gap-4 mb-6">
+                <div className="text-center">
+                  <div className="text-sm uppercase tracking-wide text-muted-foreground">Score</div>
+                  <div className="text-3xl font-mono neon-green">{score}</div>
+                </div>
+                
+                <div className="text-center">
+                  <div className="text-sm uppercase tracking-wide text-muted-foreground">Words</div>
+                  <div className="text-3xl font-mono neon-green">{foundWords}/{totalWords}</div>
+                </div>
+                
+                <div className="text-center">
+                  <div className="text-sm uppercase tracking-wide text-muted-foreground">Rank</div>
+                  <div className="text-xl font-mono text-gradient">{calculateRank()}</div>
+                </div>
+              </div>
+              
+              {/* CTA Buttons */}
+              <div className="flex flex-col sm:flex-row gap-3 mb-4">
+                <motion.button
+                  className="flex-1 bg-primary text-foreground py-2 px-4 rounded-md"
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={handlePlayAgain}
+                >
+                  <i className="fas fa-play mr-2"></i> Play Again
+                </motion.button>
+                
+                <motion.button
+                  className="flex-1 bg-blue-600 text-foreground py-2 px-4 rounded-md"
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={shareResult}
+                >
+                  <i className="fas fa-share-alt"></i> Share Score on X
+                </motion.button>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row gap-3">
+                <motion.button
+                  className="flex-1 bg-amber-600 text-foreground py-2 px-4 rounded-md"
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => setView('submitScore')}
+                >
+                  <i className="fas fa-trophy mr-2"></i> Save Score
+                </motion.button>
+                
+                <motion.button
+                  className="flex-1 bg-purple-600 text-foreground py-2 px-4 rounded-md"
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => setView('leaderboard')}
+                >
+                  <i className="fas fa-list-ol mr-2"></i> Leaderboard
+                </motion.button>
+              </div>
+            </div>
+          </>
+        );
+    }
+  };
+
+  return (
+    <>
+      {/* Confetti effect for successful games */}
+      {isSuccess && view === 'result' && (
+        <Confetti
+          width={windowSize.width}
+          height={windowSize.height}
+          recycle={false}
+          numberOfPieces={500}
+          gravity={0.15}
+          colors={['#FFD700', '#FFB900', '#FFFFFF', '#00FFFF', '#32CD32']}
+        />
+      )}
+      
+      {/* Modal overlay */}
+      <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+        <motion.div 
+          className="w-full max-w-lg bg-secondary rounded-xl shadow-xl border border-foreground/20 overflow-hidden"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ type: "spring", duration: 0.5 }}
         >
-          <div className="text-center mb-6">
-            <h2 className={`text-3xl font-bold mb-2 ${isSuccess ? "neon-text neon-green" : "text-red-500"}`}>
-              {isSuccess ? "You Did It, Degen!" : "Not Enough Gains!"}
-            </h2>
-            <p className="text-lg">
-              You found <span className="font-bold neon-green">{foundWords}</span> out of <span className="font-bold">{totalWords}</span> words
-            </p>
-          </div>
-          
-          <div className="flex justify-center mb-6">
-            <img 
-              src="/images/rich.png" 
-              alt="Crypto Rich" 
-              width={180} 
-              height={120} 
-              className="object-contain"
-            />
-          </div>
-          
-          <div className="mb-6 text-center">
-            <p className="text-2xl font-bold neon-text">
-              Your Score: <span className="neon-green">{score}</span>
-            </p>
-          </div>
-          
-          <div className="mb-6">
-            <label htmlFor="playerName" className="block mb-2 text-sm font-medium">
-              Enter Your Name To Save Score
-            </label>
-            <input
-              type="text"
-              id="playerName"
-              className="w-full px-4 py-2 bg-secondary border border-muted rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-              placeholder="CryptoBro123"
-              value={playerName}
-              onChange={(e) => setPlayerName(e.target.value)}
-              maxLength={20}
-            />
-          </div>
-          
-          <div className="flex flex-col space-y-3">
-            <motion.button
-              className="bg-primary text-primary-foreground py-3 px-4 rounded-md font-bold"
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              onClick={saveScore}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={view}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.2 }}
             >
-              Save Score & Play Again
-            </motion.button>
-            
-            <motion.button
-              className="bg-blue-600 text-white py-3 px-4 rounded-md font-bold flex items-center justify-center gap-2"
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              onClick={shareResult}
-            >
-              <i className="fas fa-share-alt"></i> Share Score on X
-            </motion.button>
-            
-            <motion.button
-              className="bg-secondary text-foreground py-2 px-4 rounded-md"
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              onClick={restart}
-            >
-              Play Again (Without Saving)
-            </motion.button>
-          </div>
+              {renderView()}
+            </motion.div>
+          </AnimatePresence>
         </motion.div>
-      </motion.div>
-    </AnimatePresence>
+      </div>
+    </>
   );
 };
 

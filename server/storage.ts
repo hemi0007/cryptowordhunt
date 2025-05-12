@@ -3,6 +3,8 @@ import {
   type HighScore,
   type InsertHighScore
 } from "@shared/schema";
+import { db } from "./db";
+import { desc, eq } from "drizzle-orm";
 
 // Simple storage interface just for high scores
 export interface IStorage {
@@ -11,6 +13,27 @@ export interface IStorage {
   getTopScores(limit?: number): Promise<HighScore[]>;
 }
 
+// Database storage implementation
+export class DbStorage implements IStorage {
+  // Save a high score to the database
+  async saveHighScore(data: InsertHighScore): Promise<HighScore> {
+    const result = await db.insert(highScores)
+      .values(data)
+      .returning();
+    
+    return result[0];
+  }
+  
+  // Get top scores from the database, ordered by score
+  async getTopScores(limit: number = 10): Promise<HighScore[]> {
+    return db.select()
+      .from(highScores)
+      .orderBy(desc(highScores.score))
+      .limit(limit);
+  }
+}
+
+// Memory-based storage implementation (fallback/testing)
 export class MemStorage implements IStorage {
   private highScores: Map<number, HighScore>;
   private highScoreIdCounter: number;
