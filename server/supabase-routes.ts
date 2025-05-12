@@ -26,11 +26,24 @@ router.get('/supabase/scores', async (req: Request, res: Response) => {
   try {
     const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
     
+    console.log('Fetching high scores from Supabase, limit:', limit);
+    console.log('Supabase URL exists:', !!process.env.SUPABASE_URL);
+    console.log('Supabase KEY exists:', !!process.env.SUPABASE_KEY);
+    
     const { data, error } = await supabase
       .from('high_scores')
       .select('*')
       .order('score', { ascending: false })
       .limit(limit);
+    
+    console.log('Supabase fetch response:', {
+      success: !error,
+      dataCount: data ? data.length : 0,
+      error: error ? {
+        code: error.code,
+        message: error.message
+      } : null
+    });
     
     if (error) {
       // If table doesn't exist, return empty array
@@ -40,6 +53,7 @@ router.get('/supabase/scores', async (req: Request, res: Response) => {
       }
       
       log(`Error fetching high scores: ${error.message}`, 'api');
+      console.error('Full Supabase error:', error);
       return res.status(500).json({ error: 'Failed to fetch high scores' });
     }
     
@@ -65,12 +79,25 @@ router.post('/supabase/scores', async (req: Request, res: Response) => {
   try {
     const { playerName, score, wordsFound, totalWords } = req.body;
     
+    console.log('Attempting to save score to Supabase:', {
+      playerName, 
+      score, 
+      wordsFound, 
+      totalWords
+    });
+    
     // Validate required fields
     if (!playerName || typeof score !== 'number' || typeof wordsFound !== 'number' || typeof totalWords !== 'number') {
+      console.error('Invalid data provided:', req.body);
       return res.status(400).json({ error: 'Missing or invalid required fields' });
     }
     
+    // Log Supabase connection details (without exposing full keys)
+    console.log('Supabase URL exists:', !!process.env.SUPABASE_URL);
+    console.log('Supabase KEY exists:', !!process.env.SUPABASE_KEY);
+    
     // Save to Supabase
+    console.log('Calling Supabase insert operation...');
     const { data, error } = await supabase
       .from('high_scores')
       .insert([{
@@ -81,6 +108,15 @@ router.post('/supabase/scores', async (req: Request, res: Response) => {
       }])
       .select()
       .single();
+    
+    console.log('Supabase insert response:', { 
+      success: !error, 
+      error: error ? {
+        code: error.code,
+        message: error.message
+      } : null,
+      data: data ? 'Data received' : 'No data'
+    });
     
     if (error) {
       // If table doesn't exist, return a mock success response
@@ -99,6 +135,7 @@ router.post('/supabase/scores', async (req: Request, res: Response) => {
       }
       
       log(`Error saving high score: ${error.message}`, 'api');
+      console.error('Full Supabase error:', error);
       return res.status(500).json({ error: 'Failed to save high score' });
     }
     
