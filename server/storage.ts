@@ -5,12 +5,61 @@ import {
 } from "@shared/schema";
 import { db } from "./db";
 import { desc, eq } from "drizzle-orm";
+import { SupabaseStorageImpl, HighScore as SupabaseHighScore } from "./supabase";
+import { log } from "./vite";
 
 // Simple storage interface just for high scores
 export interface IStorage {
   // High Scores
   saveHighScore(highScore: InsertHighScore): Promise<HighScore>;
   getTopScores(limit?: number): Promise<HighScore[]>;
+}
+
+// Supabase storage implementation
+export class SupabaseStorage implements IStorage {
+  private supabaseClient: SupabaseStorageImpl;
+
+  constructor() {
+    this.supabaseClient = new SupabaseStorageImpl();
+  }
+
+  // Save a high score to Supabase
+  async saveHighScore(data: InsertHighScore): Promise<HighScore> {
+    // Convert from Drizzle schema to Supabase schema
+    const supabaseData = {
+      player_name: data.playerName,
+      score: data.score,
+      words_found: data.wordsFound,
+      total_words: data.totalWords
+    };
+    
+    const result = await this.supabaseClient.saveHighScore(supabaseData);
+    
+    // Convert back to Drizzle schema format
+    return {
+      id: result.id!,
+      playerName: result.player_name,
+      score: result.score,
+      wordsFound: result.words_found,
+      totalWords: result.total_words,
+      completedAt: new Date(result.created_at!)
+    };
+  }
+  
+  // Get top scores from Supabase, ordered by score
+  async getTopScores(limit: number = 10): Promise<HighScore[]> {
+    const results = await this.supabaseClient.getTopScores(limit);
+    
+    // Convert from Supabase schema to Drizzle schema
+    return results.map(item => ({
+      id: item.id!,
+      playerName: item.player_name,
+      score: item.score,
+      wordsFound: item.words_found,
+      totalWords: item.total_words,
+      completedAt: new Date(item.created_at!)
+    }));
+  }
 }
 
 // Database storage implementation
@@ -85,15 +134,24 @@ export class MemStorage implements IStorage {
   }
 }
 
-// Use DbStorage for production, fall back to MemStorage if database connection fails
+// Choose storage implementation in order of preference:
+// 1. Supabase (if configured)
+// 2. PostgreSQL DB (if Supabase not configured)
+// 3. Memory Storage (if both fail)
 let storageImpl: IStorage;
 
 try {
-  storageImpl = new DbStorage();
-  console.log("Using database storage for high scores");
+  if (process.env.SUPABASE_URL && process.env.SUPABASE_KEY) {
+    storageImpl = new SupabaseStorage();
+    log("Using Supabase storage for high scores", "database");
+  } else {
+    storageImpl = new DbStorage();
+    log("Using PostgreSQL database storage for high scores", "database");
+  }
 } catch (error) {
-  console.warn("Failed to initialize database storage, falling back to memory storage:", error);
+  console.warn("Failed to initialize primary storage, falling back to memory storage:", error);
   storageImpl = new MemStorage();
+  log("Using in-memory storage for high scores", "database");
 }
 
 export const storage = storageImpl;
