@@ -20,7 +20,7 @@ export default function Leaderboard() {
     const fetchScores = async () => {
       try {
         setLoading(true);
-        const data = await apiRequest({
+        const data = await apiRequest<HighScore[]>({
           url: '/api/scores',
           method: 'GET',
         });
