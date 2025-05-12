@@ -1,5 +1,6 @@
 // Crypto-themed words for the word search puzzle
 export const CRYPTO_WORDS = [
+  // Original words
   "BITCOIN",
   "ETHEREUM",
   "DOGE",
@@ -19,7 +20,39 @@ export const CRYPTO_WORDS = [
   "BULL",
   "DEFI",
   "STAKING",
-  "LFG"
+  "LFG",
+  
+  // New crypto bro terms
+  "WAGMI",        // We're All Gonna Make It
+  "NGMI",         // Not Gonna Make It
+  "WHALE",        // Big holder/investor
+  "PUMP",         // Price increase
+  "DUMP",         // Price decrease
+  "SAFU",         // Secure Asset Fund for Users
+  "REKT",         // Wrecked (lost money)
+  "FLIPPENING",   // ETH overtaking BTC
+  "SHILL",        // Promote a coin
+  "NOCOINER",     // Person with no crypto
+  "SHITCOIN",     // Low value altcoin
+  "MOONING",      // Price skyrocketing
+  "APE",          // Invest impulsively
+  "BAGHOLDER",    // Holding worthless coins
+  "SATOSHI",      // Bitcoin creator
+  "GWEI",         // ETH gas unit
+  "ICO",          // Initial Coin Offering
+  "LEVERAGE",     // Trading with borrowed funds
+  "DCA",          // Dollar Cost Average
+  "ATH",          // All Time High
+  "AIRDROP",      // Free token distribution
+  "DYOR",         // Do Your Own Research
+  "ROI",          // Return On Investment
+  "KYC",          // Know Your Customer
+  "CRYPTOSIS",    // Obsession with crypto
+  "MEMECOIN",     // Meme-based cryptocurrency
+  "WHITEPAPER",   // Project document
+  "SEED",         // Wallet recovery phrase
+  "GAS",          // Transaction fee
+  "ALPHA"         // Early/insider info
 ];
 
 // Different color themes
