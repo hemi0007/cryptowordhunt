@@ -21,28 +21,34 @@ const GamePage = () => {
     // Clear any existing interval
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
+      intervalRef.current = null;
     }
     
     // Set up timer only if not paused
     if (!timerPaused) {
+      console.log("Timer running - not paused");
       intervalRef.current = setInterval(() => {
         setTimer((prev) => {
           if (prev <= 1) {
             // Time's up
             if (intervalRef.current) {
               clearInterval(intervalRef.current);
+              intervalRef.current = null;
             }
             return 0;
           }
           return prev - 1;
         });
       }, 1000);
+    } else {
+      console.log("Timer paused by FUD Shield");
     }
 
     // Clean up on unmount
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
+        intervalRef.current = null;
       }
     };
   }, [phase, timerPaused]);
@@ -63,6 +69,7 @@ const GamePage = () => {
   
   // Handle timer pause/resume from power-ups and other power-up states
   const handleTimerPause = (isPaused: boolean, powerUpStates?: any) => {
+    console.log(`Timer pause state changed to: ${isPaused ? "PAUSED" : "RUNNING"}`);
     setTimerPaused(isPaused);
     
     // Update mining boost state if provided

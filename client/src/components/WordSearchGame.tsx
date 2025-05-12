@@ -267,6 +267,7 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({ onStatsUpdate, timeRema
     
     setFudShieldActive(true);
     console.log("FUD Shield activated - pausing timer");
+    playSuccess(); // Play sound effect
     
     // Pause the timer by notifying parent component
     if (onTimePause) {
@@ -278,6 +279,7 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({ onStatsUpdate, timeRema
     setTimeout(() => {
       setFudShieldActive(false);
       console.log("FUD Shield deactivated - resuming timer");
+      playHit(); // Play sound effect for deactivation
       // Resume the timer
       if (onTimePause) {
         onTimePause(false);
