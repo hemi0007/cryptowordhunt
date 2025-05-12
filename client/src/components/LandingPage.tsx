@@ -150,7 +150,7 @@ const LandingPage = () => {
                       <span className="text-xs">{Math.round(volume * 100)}%</span>
                     </div>
                     <Slider 
-                      defaultValue={[volume * 100]} 
+                      value={[volume * 100]} 
                       max={100} 
                       step={10}
                       disabled={isMuted}

@@ -40,18 +40,30 @@ export interface HighScore {
 
 // Function to fetch high scores
 export async function getHighScores(limit = 10): Promise<HighScore[]> {
-  const { data, error } = await supabase
-    .from('high_scores')
-    .select('*')
-    .order('score', { ascending: false })
-    .limit(limit);
+  console.log('Client-side: Attempting to fetch high scores from Supabase');
   
-  if (error) {
-    console.error('Error fetching high scores:', error);
-    throw error;
+  try {
+    const { data, error } = await supabase
+      .from('high_scores')
+      .select('*')
+      .order('score', { ascending: false })
+      .limit(limit);
+    
+    if (error) {
+      console.error('Client-side: Error fetching high scores from Supabase:', error);
+      console.error('Error code:', error.code);
+      console.error('Error message:', error.message);
+      console.error('Error hint:', error.hint);
+      console.error('Error details:', error.details);
+      throw error;
+    }
+    
+    console.log('Client-side: Successfully fetched high scores from Supabase:', data?.length || 0, 'records');
+    return data || [];
+  } catch (err) {
+    console.error('Client-side: Exception when fetching scores:', err);
+    return [];
   }
-  
-  return data || [];
 }
 
 // Function to submit a high score
@@ -61,23 +73,37 @@ export async function submitHighScore(
   wordsFound: number,
   totalWords: number
 ): Promise<HighScore> {
-  const { data, error } = await supabase
-    .from('high_scores')
-    .insert([
-      {
-        player_name: playerName,
-        score,
-        words_found: wordsFound,
-        total_words: totalWords
-      }
-    ])
-    .select()
-    .single();
+  console.log('Client-side: Attempting to submit high score to Supabase:', {
+    playerName, score, wordsFound, totalWords
+  });
   
-  if (error) {
-    console.error('Error submitting high score:', error);
-    throw error;
+  try {
+    const { data, error } = await supabase
+      .from('high_scores')
+      .insert([
+        {
+          player_name: playerName,
+          score,
+          words_found: wordsFound,
+          total_words: totalWords
+        }
+      ])
+      .select()
+      .single();
+    
+    if (error) {
+      console.error('Client-side: Error submitting high score to Supabase:', error);
+      console.error('Error code:', error.code);
+      console.error('Error message:', error.message);
+      console.error('Error hint:', error.hint);
+      console.error('Error details:', error.details);
+      throw error;
+    }
+    
+    console.log('Client-side: Successfully submitted high score to Supabase:', data);
+    return data;
+  } catch (err) {
+    console.error('Client-side: Exception when submitting score:', err);
+    throw err;
   }
-  
-  return data;
 }
