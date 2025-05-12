@@ -208,10 +208,12 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({ onStatsUpdate, timeRema
   
   // Handle Diamond Vision power-up (reveal all words briefly)
   const handleVision = () => {
-    if (visionCooldown) return;
+    // Check if already used
+    if (visionUsed) return;
     
     setVisionActive(true);
-    console.log("Diamond Vision activated - revealing all unsolved words");
+    setVisionUsed(true); // Mark as used (one-time use)
+    console.log("Diamond Vision activated - revealing all unsolved words (one-time use)");
     playSuccess(); // Play success sound for feedback
     
     // Show all words for a brief moment
@@ -234,19 +236,20 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({ onStatsUpdate, timeRema
       console.log("Diamond Vision deactivated");
     }, 3000);
     
-    // Set cooldown
+    // Set cooldown for UI feedback
     setVisionCooldown(true);
-    setTimeout(() => setVisionCooldown(false), 30000); // 30 sec cooldown
   };
   
   // Handle Mining Boost power-up (increases score multiplier)
   const handleMining = () => {
-    if (miningCooldown) return;
+    // Check if already used
+    if (miningUsed) return;
     
     setMiningActive(true);
+    setMiningUsed(true); // Mark as used (one-time use)
     // Set score multiplier to 2x
     setScoreMultiplier(2);
-    console.log("Mining Boost activated - 2x score multiplier enabled");
+    console.log("Mining Boost activated - 2x score multiplier enabled (one-time use)");
     
     // Create visual feedback in the parent component via onTimePause hack
     if (onTimePause) {
@@ -268,17 +271,18 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({ onStatsUpdate, timeRema
       }
     }, 30000);
     
-    // Set cooldown
+    // Set cooldown for UI feedback
     setMiningCooldown(true);
-    setTimeout(() => setMiningCooldown(false), 60000); // 60 sec cooldown
   };
   
   // Handle FUD Shield power-up (pauses timer)
   const handleFudShield = () => {
-    if (fudShieldCooldown) return;
+    // Check if already used
+    if (fudShieldUsed) return;
     
     setFudShieldActive(true);
-    console.log("FUD Shield activated - pausing timer");
+    setFudShieldUsed(true); // Mark as used (one-time use)
+    console.log("FUD Shield activated - pausing timer (one-time use)");
     playSuccess(); // Play sound effect
     
     // Pause the timer by notifying parent component
@@ -298,9 +302,8 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({ onStatsUpdate, timeRema
       }
     }, 10000);
     
-    // Set cooldown
+    // Set cooldown for UI feedback
     setFudShieldCooldown(true);
-    setTimeout(() => setFudShieldCooldown(false), 45000); // 45 sec cooldown
   };
   
   // Ensure the grid is always square and responsive
@@ -385,49 +388,49 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({ onStatsUpdate, timeRema
         {/* Power-ups */}
         <div className="flex flex-wrap justify-center gap-4 mt-6">
           <motion.button
-            className={`power-up px-4 py-2 rounded-lg flex items-center gap-2 ${boostActive || boostCooldown ? 'bg-muted' : 'bg-blue-600'}`}
+            className={`power-up px-4 py-2 rounded-lg flex items-center gap-2 ${boostActive || boostUsed ? 'bg-muted' : 'bg-blue-600'}`}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleBoost}
-            disabled={boostActive || boostCooldown}
+            disabled={boostActive || boostUsed}
           >
             <span role="img" aria-label="Rocket">🚀</span> Boost
-            {boostCooldown && <span className="text-xs">(cooldown)</span>}
+            {boostUsed && !boostActive && <span className="text-xs">(used)</span>}
           </motion.button>
           
           <motion.button
-            className={`power-up px-4 py-2 rounded-lg flex items-center gap-2 ${visionActive || visionCooldown ? 'bg-muted' : 'bg-purple-600'}`}
+            className={`power-up px-4 py-2 rounded-lg flex items-center gap-2 ${visionActive || visionUsed ? 'bg-muted' : 'bg-purple-600'}`}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleVision}
-            disabled={visionActive || visionCooldown}
+            disabled={visionActive || visionUsed}
           >
             <span role="img" aria-label="Diamond">💎</span> Diamond Vision
-            {visionCooldown && <span className="text-xs">(cooldown)</span>}
+            {visionUsed && !visionActive && <span className="text-xs">(used)</span>}
           </motion.button>
           
           <motion.button
-            className={`power-up px-4 py-2 rounded-lg flex items-center gap-2 ${miningActive || miningCooldown ? 'bg-muted' : 'bg-amber-600'}`}
+            className={`power-up px-4 py-2 rounded-lg flex items-center gap-2 ${miningActive || miningUsed ? 'bg-muted' : 'bg-amber-600'}`}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleMining}
-            disabled={miningActive || miningCooldown}
+            disabled={miningActive || miningUsed}
           >
             <span role="img" aria-label="Mining">⛏️</span> Mining Boost
             {miningActive && <span className="text-xs ml-1 text-green-400">(2x)</span>}
-            {miningCooldown && !miningActive && <span className="text-xs">(cooldown)</span>}
+            {miningUsed && !miningActive && <span className="text-xs">(used)</span>}
           </motion.button>
           
           <motion.button
-            className={`power-up px-4 py-2 rounded-lg flex items-center gap-2 ${fudShieldActive || fudShieldCooldown ? 'bg-muted' : 'bg-red-600'}`}
+            className={`power-up px-4 py-2 rounded-lg flex items-center gap-2 ${fudShieldActive || fudShieldUsed ? 'bg-muted' : 'bg-red-600'}`}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleFudShield}
-            disabled={fudShieldActive || fudShieldCooldown}
+            disabled={fudShieldActive || fudShieldUsed}
           >
             <span role="img" aria-label="Shield">🛡️</span> FUD Shield
             {fudShieldActive && <span className="text-xs ml-1 text-green-400">(active)</span>}
-            {fudShieldCooldown && !fudShieldActive && <span className="text-xs">(cooldown)</span>}
+            {fudShieldUsed && !fudShieldActive && <span className="text-xs">(used)</span>}
           </motion.button>
         </div>
       </div>
