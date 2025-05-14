@@ -1,10 +1,12 @@
-import { Suspense, useState, useEffect } from "react";
+import { Suspense, useState, useEffect, lazy } from "react";
 import { useAudio } from "./lib/stores/useAudio";
 import { useGame } from "./lib/stores/useGame";
-import LandingPage from "./components/LandingPage";
-import GamePage from "./components/GamePage";
-import MatrixBackground from "./components/MatrixBackground";
 import { loadSounds } from "./lib/soundEffects";
+
+// Lazy load components for better performance
+const LandingPage = lazy(() => import("./components/LandingPage"));
+const GamePage = lazy(() => import("./components/GamePage"));
+const MatrixBackground = lazy(() => import("./components/MatrixBackground"));
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -42,9 +44,15 @@ function App() {
 
   return (
     <div className="relative w-full min-h-screen overflow-x-hidden">
-      <MatrixBackground />
+      <Suspense fallback={null}>
+        <MatrixBackground />
+      </Suspense>
       
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={
+        <div className="flex items-center justify-center h-screen">
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      }>
         {phase === "ready" && <LandingPage />}
         {(phase === "playing" || phase === "ended") && <GamePage />}
       </Suspense>
