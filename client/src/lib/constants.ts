@@ -52,59 +52,7 @@ export const CRYPTO_WORDS = [
   "WHITEPAPER",   // Project document
   "SEED",         // Wallet recovery phrase
   "GAS",          // Transaction fee
-  "ALPHA",        // Early/insider info
-  
-  // Additional 50 crypto bro terms
-  "MOON",         // Price rising dramatically
-  "SATS",         // Satoshis (Bitcoin fractions)
-  "FIAT",         // Government currency
-  "LEDGER",       // Hardware wallet brand
-  "TREZOR",       // Hardware wallet brand
-  "CRYPTOWINTER", // Extended bear market
-  "METAVERSE",    // Virtual reality space
-  "SOLANA",       // Blockchain platform
-  "AVALANCHE",    // Blockchain platform
-  "CARDANO",      // Blockchain platform
-  "RIPPLE",       // Blockchain company/token
-  "BINANCE",      // Crypto exchange
-  "COINBASE",     // Crypto exchange
-  "CEX",          // Centralized Exchange
-  "DEX",          // Decentralized Exchange
-  "BRIDGE",       // Cross-chain transfer
-  "COLLATERAL",   // Assets backing a loan
-  "LONGING",      // Betting on price increase
-  "SHORTING",     // Betting on price decrease
-  "FARMING",      // Yield/liquidity farming
-  "YIELD",        // Return on investment
-  "STABLES",      // Stablecoins
-  "DAPP",         // Decentralized application
-  "BULLISH",      // Optimistic price attitude
-  "BEARISH",      // Pessimistic price attitude
-  "SMARTCONTRACT", // Self-executing contract
-  "TOKEN",        // Digital asset
-  "COIN",         // Native blockchain asset
-  "FORK",         // Blockchain split
-  "HALVING",      // BTC mining reward halving
-  "CONSENSUS",    // Agreement mechanism
-  "DOXXED",       // Identity revealed
-  "ANON",         // Anonymous developer
-  "PEPE",         // Popular meme coin theme
-  "ORDINALS",     // Bitcoin NFTs
-  "INSCRIPTIONS", // Ordinal inscriptions
-  "SHIB",         // Shiba Inu token
-  "TOKENOMICS",   // Token economics
-  "VESTING",      // Token release schedule
-  "LIQUIDITY",    // Available trading funds
-  "MARKETCAP",    // Total market capitalization
-  "BURNER",       // Disposable wallet
-  "COLD",         // Offline storage
-  "HOT",          // Online storage
-  "PAPER",        // Paper hands (sell quickly)
-  "FINTECH",      // Financial technology
-  "BAGS",         // Holdings
-  "HOPIUM",       // Unrealistic optimism
-  "COPIUM",       // Coping with losses
-  "PONZI"         // Unsustainable scheme
+  "ALPHA"         // Early/insider info
 ];
 
 // Different color themes
