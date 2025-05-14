@@ -71,38 +71,6 @@ async function main() {
       JSON.stringify(prodPackageJson, null, 2)
     );
     
-    // Step 3.5: Ensure images are copied to the public directory
-    console.log('\n🖼️ Ensuring images are properly copied...');
-    
-    // Check if images directory exists, if not create it
-    const publicImagesDir = path.join(rootDir, 'dist', 'public', 'images');
-    try {
-      await fs.mkdir(publicImagesDir, { recursive: true });
-      console.log('Created images directory in public folder');
-    } catch (err) {
-      console.log('Images directory already exists');
-    }
-    
-    // Copy the image files from attached_assets
-    try {
-      console.log('Copying images from attached_assets to public/images');
-      const imageFiles = ['bitcoin.png', 'rocket.png', 'rich.png'];
-      
-      for (const file of imageFiles) {
-        const sourceFile = path.join(rootDir, 'attached_assets', file);
-        const destFile = path.join(publicImagesDir, file);
-        
-        try {
-          await fs.copyFile(sourceFile, destFile);
-          console.log(`Copied ${file}`);
-        } catch (err) {
-          console.error(`Error copying ${file}: ${err.message}`);
-        }
-      }
-    } catch (err) {
-      console.error('Error in image copying process:', err);
-    }
-    
     // Step 4: Create .env.example file for reference
     console.log('\n🔑 Creating .env.example file...');
     const envExample = `# Supabase Configuration
