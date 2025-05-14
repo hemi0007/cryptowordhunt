@@ -10,141 +10,29 @@ A viral crypto-themed word search game that combines engaging gameplay with bloc
 - Supabase database for high scores
 - Advanced power-up system
 - Enhanced audio and visual feedback
+- 85+ crypto-themed vocabulary words
 
-## Deploying to Hostinger
+## Deploying on Replit
 
-Follow these steps to deploy ChainWords to Hostinger:
+### 1. Using Replit's Built-in Deployment
 
-### 1. Prepare Your Project for Deployment
+1. Click the "Deploy" button at the top of your Replit workspace
+2. Replit will automatically build and deploy your application
+3. Once deployed, you'll get a dedicated `.replit.app` URL
 
-1. Make sure you have committed all your changes to Git
-2. Build your project locally to verify it works:
-   ```bash
-   npm run build
-   npm start
-   ```
+### 2. Environment Variables
 
-### 2. Create a Hostinger Account and Set Up Hosting
-
-1. Sign up for a Hostinger account at [hostinger.com](https://www.hostinger.com/)
-2. Purchase a hosting plan that supports Node.js (Premium or Business plan)
-3. Set up your domain name
-
-### 3. Connect to Hostinger via SSH
-
-1. Log in to your Hostinger control panel
-2. Navigate to "Advanced" > "SSH Access"
-3. Generate or add an SSH key if you haven't already
-4. Connect using the terminal:
-   ```bash
-   ssh u123456789@your-hostinger-server.com
-   ```
-   (Use the SSH details provided by Hostinger)
-
-### 4. Set Up Node.js Environment on Hostinger
-
-1. Once connected via SSH, check that Node.js is installed:
-   ```bash
-   node -v
-   npm -v
-   ```
-2. If needed, install or update Node.js:
-   ```bash
-   # Follow Hostinger's documentation to install Node.js
-   # or use Node Version Manager (nvm)
-   ```
-
-### 5. Set Up Environment Variables
-
-1. In your Hostinger control panel, go to "Website" > "Manage" > "Environment Variables"
-2. Add these environment variables:
-   - `SUPABASE_URL`: Your Supabase project URL
-   - `SUPABASE_KEY`: Your Supabase API key
-   - `NODE_ENV`: Set to `production`
-
-### 6. Deploy Your Application
-
-#### Option 1: Using the Deployment Script (Recommended)
-
-1. Run the deployment script to prepare your project:
-   ```bash
-   # Make the script executable (if needed)
-   chmod +x scripts/deploy-hostinger.js
-   
-   # Run the deployment script
-   node scripts/deploy-hostinger.js
-   ```
-   
-2. The script will:
-   - Build your application
-   - Create a production-optimized package.json
-   - Generate a deployment ZIP file (chainwords-deploy.zip)
-   
-3. Upload the generated `chainwords-deploy.zip` to your Hostinger server using SFTP
-
-4. Connect to SSH and extract the archive:
-   ```bash
-   unzip chainwords-deploy.zip -d /path/to/your/app
-   cd /path/to/your/app
-   ```
-   
-5. Create a `.env` file with your environment variables:
-   ```bash
-   cp .env.example .env
-   nano .env  # Edit with your actual credentials
-   ```
-   
-6. Start your application:
-   ```bash
-   npm install
-   npm start
-   ```
-   
-7. For better process management, use PM2:
-   ```bash
-   npm install -g pm2
-   pm2 start index.js --name chainwords
-   pm2 save
-   pm2 startup
-   ```
-
-#### Option 2: Git Deployment
-
-1. In Hostinger control panel, go to "Website" > "Git"
-2. Connect your GitHub repository
-3. Configure auto-deployment from your main branch
-4. Set up build command: `npm ci && npm run build`
-5. Set up start command: `npm start`
-
-#### Option 3: Manual Deployment
-
-1. Build your project locally:
-   ```bash
-   npm ci
-   npm run build
-   ```
-   
-2. Create an archive of your build:
-   ```bash
-   cd dist
-   zip -r ../chainwords-manual.zip .
-   ```
-   
-3. Upload the ZIP file to your Hostinger server using SFTP
-4. Follow steps 4-7 from Option 1 to set up and run your application
-
-### 7. Configure Domain and SSL
-
-1. In the Hostinger control panel, go to "Website" > "Domains"
-2. Point your domain to your Node.js application
-3. Set up SSL certificate through Hostinger (often automatic)
-
-## Environment Variables
-
-To run this project, you'll need the following environment variables:
+Make sure these environment variables are set in your Replit deployment:
 
 - `SUPABASE_URL`: Your Supabase project URL
 - `SUPABASE_KEY`: Your Supabase API key
+- `NODE_ENV`: Set to `production`
+
+### 3. Configuring Domains (Optional)
+
+1. If you have a custom domain, you can set it up in Replit's deployment settings
+2. From your deployed app page, go to "Settings" > "Custom domains"
+3. Follow the instructions to link your domain to your Replit app
 
 ## Supabase Setup
 
@@ -183,9 +71,9 @@ When deploying to production, you'll need to configure CORS in your Supabase pro
 1. Go to your Supabase dashboard
 2. Navigate to Project Settings > API 
 3. Under "CORS (Cross-Origin Resource Sharing)", add your production domain:
-   - Add `https://yourdomain.com` to the "Origins" list
-   - If you have multiple domains or subdomains, add them all
-   - You can temporarily add `*` during testing, but make sure to remove it and specify exact domains for production
+   - Add your `.replit.app` domain to the "Origins" list
+   - If you have a custom domain, add that as well
+   - You can temporarily add `*` during testing, but make sure to specify exact domains for production
 
 ### 3. Use the Correct API Keys
 
@@ -196,29 +84,8 @@ For production deployment, make sure to:
    - For client-side operations: use the `anon` public key
 
 2. Keep your service_role key secure:
-   - Never expose it in client-side code
-   - Store it as an environment variable on your hosting platform
+   - Store it as an environment variable in Replit
    - Use it only for server-side operations
-
-## Testing Deployment Locally
-
-Before deploying to Hostinger, it's a good idea to test your production build locally:
-
-```bash
-# Build for production
-npm run build
-
-# Start the production server
-npm start
-```
-
-Visit http://localhost:5000 (or the port specified in your environment) to verify everything works as expected.
-
-Check for:
-- High score submission functionality
-- Supabase connection
-- Correct game rendering and gameplay
-- Sound effects and music playback
 
 ## Development
 
@@ -245,9 +112,9 @@ npm run dev
    - Check that your IP address isn't blocked by Supabase's security settings
 
 3. **Missing Environment Variables**:
-   - Make sure all required environment variables are set on your hosting provider
+   - Make sure all required environment variables are set in Replit
    - Double-check for typos in environment variable names
 
-4. **Port Configuration**:
-   - Ensure your app listens on the port provided by Hostinger (often available via PORT env var)
-   - If you specify a port manually, make sure it matches Hostinger's expected port
+4. **Image Loading Issues**:
+   - If images aren't loading, check that they're properly referenced with relative paths (./images/filename.png)
+   - Verify that image files exist in the public directory
