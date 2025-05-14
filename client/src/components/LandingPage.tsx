@@ -5,6 +5,7 @@ import { useAudio } from "../lib/stores/useAudio";
 import { useGame } from "../lib/stores/useGame";
 import IconGenerator from "./IconGenerator";
 import { HighScoreCard } from "./HighScoreCard";
+import GameImage from "./GameImage";
 
 const LandingPage = () => {
   const { start } = useGame();
@@ -162,20 +163,8 @@ const LandingPage = () => {
           </div>
           
           <div className="mt-4 flex gap-8 justify-center">
-            <img 
-              src={(window as any).__imageImportMap?.bitcoin || './images/bitcoin.png'} 
-              alt="Bitcoin" 
-              width={120} 
-              height={120} 
-              className="object-contain" 
-            />
-            <img 
-              src={(window as any).__imageImportMap?.rocket || './images/rocket.png'} 
-              alt="Rocket" 
-              width={120} 
-              height={120} 
-              className="object-contain" 
-            />
+            <GameImage type="bitcoin" width={120} height={120} />
+            <GameImage type="rocket" width={120} height={120} />
           </div>
         </div>
         
