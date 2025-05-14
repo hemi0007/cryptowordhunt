@@ -162,8 +162,8 @@ const LandingPage = () => {
           </div>
           
           <div className="mt-4 flex gap-8 justify-center">
-            <img src="/images/bitcoin.png" alt="Bitcoin" width={120} height={120} className="object-contain" />
-            <img src="/images/rocket.png" alt="Rocket" width={120} height={120} className="object-contain" />
+            <img src="./images/bitcoin.png" alt="Bitcoin" width={120} height={120} className="object-contain" />
+            <img src="./images/rocket.png" alt="Rocket" width={120} height={120} className="object-contain" />
           </div>
         </div>
         
