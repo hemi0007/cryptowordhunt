@@ -11,66 +11,133 @@ A viral crypto-themed word search game that combines engaging gameplay with bloc
 - Advanced power-up system
 - Enhanced audio and visual feedback
 
-## Deploying to GitHub Pages
+## Deploying to Hostinger
 
-Follow these steps to deploy ChainWords to GitHub Pages:
+Follow these steps to deploy ChainWords to Hostinger:
 
-### 1. Create a new GitHub repository
+### 1. Prepare Your Project for Deployment
 
-- Sign in to GitHub
-- Click the "+" icon in the top right corner and select "New repository"
-- Name your repository (e.g., "chainwords")
-- Make it public or private as desired
-- Click "Create repository"
+1. Make sure you have committed all your changes to Git
+2. Build your project locally to verify it works:
+   ```bash
+   npm run build
+   npm start
+   ```
 
-### 2. Push your code to GitHub
+### 2. Create a Hostinger Account and Set Up Hosting
 
-Run these commands in your terminal after creating the repository:
+1. Sign up for a Hostinger account at [hostinger.com](https://www.hostinger.com/)
+2. Purchase a hosting plan that supports Node.js (Premium or Business plan)
+3. Set up your domain name
 
-```bash
-# Initialize git repository (if not already done)
-git init
+### 3. Connect to Hostinger via SSH
 
-# Add all files to git
-git add .
+1. Log in to your Hostinger control panel
+2. Navigate to "Advanced" > "SSH Access"
+3. Generate or add an SSH key if you haven't already
+4. Connect using the terminal:
+   ```bash
+   ssh u123456789@your-hostinger-server.com
+   ```
+   (Use the SSH details provided by Hostinger)
 
-# Commit the changes
-git commit -m "Initial commit"
+### 4. Set Up Node.js Environment on Hostinger
 
-# Add GitHub repository as remote
-git remote add origin https://github.com/YOUR-USERNAME/chainwords.git
+1. Once connected via SSH, check that Node.js is installed:
+   ```bash
+   node -v
+   npm -v
+   ```
+2. If needed, install or update Node.js:
+   ```bash
+   # Follow Hostinger's documentation to install Node.js
+   # or use Node Version Manager (nvm)
+   ```
 
-# Push to GitHub
-git push -u origin main
-```
+### 5. Set Up Environment Variables
 
-### 3. Set up GitHub Secrets
+1. In your Hostinger control panel, go to "Website" > "Manage" > "Environment Variables"
+2. Add these environment variables:
+   - `SUPABASE_URL`: Your Supabase project URL
+   - `SUPABASE_KEY`: Your Supabase API key
+   - `NODE_ENV`: Set to `production`
 
-In your GitHub repository:
+### 6. Deploy Your Application
 
-1. Go to "Settings" > "Secrets and variables" > "Actions"
-2. Click "New repository secret"
-3. Add these secrets:
-   - Name: `SUPABASE_URL` 
-   - Value: Your Supabase URL
-4. Add another secret:
-   - Name: `SUPABASE_KEY`
-   - Value: Your Supabase service role key
+#### Option 1: Using the Deployment Script (Recommended)
 
-### 4. Set up GitHub Pages
+1. Run the deployment script to prepare your project:
+   ```bash
+   # Make the script executable (if needed)
+   chmod +x scripts/deploy-hostinger.js
+   
+   # Run the deployment script
+   node scripts/deploy-hostinger.js
+   ```
+   
+2. The script will:
+   - Build your application
+   - Create a production-optimized package.json
+   - Generate a deployment ZIP file (chainwords-deploy.zip)
+   
+3. Upload the generated `chainwords-deploy.zip` to your Hostinger server using SFTP
 
-1. Go to "Settings" > "Pages"
-2. In the "Source" section, select "GitHub Actions"
-3. GitHub will use the workflow file we've created at `.github/workflows/deploy.yml`
+4. Connect to SSH and extract the archive:
+   ```bash
+   unzip chainwords-deploy.zip -d /path/to/your/app
+   cd /path/to/your/app
+   ```
+   
+5. Create a `.env` file with your environment variables:
+   ```bash
+   cp .env.example .env
+   nano .env  # Edit with your actual credentials
+   ```
+   
+6. Start your application:
+   ```bash
+   npm install
+   npm start
+   ```
+   
+7. For better process management, use PM2:
+   ```bash
+   npm install -g pm2
+   pm2 start index.js --name chainwords
+   pm2 save
+   pm2 startup
+   ```
 
-### 5. Run the Deployment
+#### Option 2: Git Deployment
 
-1. Go to the "Actions" tab in your repository
-2. Select the "Deploy ChainWords" workflow
-3. Click "Run workflow" > "Run workflow"
-4. Wait for the workflow to complete
+1. In Hostinger control panel, go to "Website" > "Git"
+2. Connect your GitHub repository
+3. Configure auto-deployment from your main branch
+4. Set up build command: `npm ci && npm run build`
+5. Set up start command: `npm start`
 
-Once deployed, your game will be available at `https://YOUR-USERNAME.github.io/chainwords/`
+#### Option 3: Manual Deployment
+
+1. Build your project locally:
+   ```bash
+   npm ci
+   npm run build
+   ```
+   
+2. Create an archive of your build:
+   ```bash
+   cd dist
+   zip -r ../chainwords-manual.zip .
+   ```
+   
+3. Upload the ZIP file to your Hostinger server using SFTP
+4. Follow steps 4-7 from Option 1 to set up and run your application
+
+### 7. Configure Domain and SSL
+
+1. In the Hostinger control panel, go to "Website" > "Domains"
+2. Point your domain to your Node.js application
+3. Set up SSL certificate through Hostinger (often automatic)
 
 ## Environment Variables
 
@@ -80,6 +147,8 @@ To run this project, you'll need the following environment variables:
 - `SUPABASE_KEY`: Your Supabase API key
 
 ## Supabase Setup
+
+### 1. Create High Scores Table
 
 Make sure your Supabase project has the necessary `high_scores` table with the correct schema:
 
@@ -107,7 +176,53 @@ CREATE POLICY "Allow anonymous insert access"
 ON public.high_scores FOR INSERT WITH CHECK (true);
 ```
 
+### 2. Configure CORS for Your Production Domain
+
+When deploying to production, you'll need to configure CORS in your Supabase project:
+
+1. Go to your Supabase dashboard
+2. Navigate to Project Settings > API 
+3. Under "CORS (Cross-Origin Resource Sharing)", add your production domain:
+   - Add `https://yourdomain.com` to the "Origins" list
+   - If you have multiple domains or subdomains, add them all
+   - You can temporarily add `*` during testing, but make sure to remove it and specify exact domains for production
+
+### 3. Use the Correct API Keys
+
+For production deployment, make sure to:
+
+1. Use the appropriate API key:
+   - For server-side operations (most secure): use the `service_role` key
+   - For client-side operations: use the `anon` public key
+
+2. Keep your service_role key secure:
+   - Never expose it in client-side code
+   - Store it as an environment variable on your hosting platform
+   - Use it only for server-side operations
+
+## Testing Deployment Locally
+
+Before deploying to Hostinger, it's a good idea to test your production build locally:
+
+```bash
+# Build for production
+npm run build
+
+# Start the production server
+npm start
+```
+
+Visit http://localhost:5000 (or the port specified in your environment) to verify everything works as expected.
+
+Check for:
+- High score submission functionality
+- Supabase connection
+- Correct game rendering and gameplay
+- Sound effects and music playback
+
 ## Development
+
+For regular development work:
 
 ```bash
 # Install dependencies
@@ -115,10 +230,24 @@ npm install
 
 # Start development server
 npm run dev
-
-# Build for production
-npm run build
-
-# Start production server
-npm start
 ```
+
+## Troubleshooting Deployment
+
+### Common Issues:
+
+1. **CORS Errors**:
+   - Check that your Supabase project has the correct domain in the CORS origins list
+   - Verify that you're using https:// on production
+
+2. **Database Connection Issues**:
+   - Verify your `SUPABASE_URL` and `SUPABASE_KEY` environment variables
+   - Check that your IP address isn't blocked by Supabase's security settings
+
+3. **Missing Environment Variables**:
+   - Make sure all required environment variables are set on your hosting provider
+   - Double-check for typos in environment variable names
+
+4. **Port Configuration**:
+   - Ensure your app listens on the port provided by Hostinger (often available via PORT env var)
+   - If you specify a port manually, make sure it matches Hostinger's expected port
