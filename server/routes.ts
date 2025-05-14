@@ -6,6 +6,11 @@ import { z } from "zod";
 import { supabaseRoutes } from "./supabase-routes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Health check endpoint
+  app.get("/", (req: Request, res: Response) => {
+    res.status(200).send('OK');
+  });
+
   // API endpoint to get Supabase configuration
   app.get("/api/config/supabase", (req: Request, res: Response) => {
     res.json({
