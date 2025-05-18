@@ -6,8 +6,8 @@ import WordSearchGame from "./WordSearchGame";
 import EndGameModal from "./EndGameModal";
 
 const GamePage = () => {
-  // Destructure phase and setPhase from useGame hook
-  const { phase, setPhase } = useGame();
+  // Get phase and methods from useGame hook
+  const { phase, start, end, restart } = useGame();
   const [timer, setTimer] = useState(60);
   const [score, setScore] = useState(0);
   const [foundWordsCount, setFoundWordsCount] = useState(0);
@@ -161,7 +161,7 @@ const GamePage = () => {
     const newTime = baseTime + roundBonus;
 
     // Reset the game phase to "playing" to prevent the "time's up" modal from persisting
-    setPhase("playing");
+    start();
 
     // Update state in the correct order
     setTimer(newTime);
@@ -204,7 +204,7 @@ const GamePage = () => {
   // Additional effect to properly handle game phase transitions
   useEffect(() => {
     if (timer === 0 && !roundComplete && phase !== "ended") {
-      setPhase("ended");
+      end();
     }
   }, [timer, roundComplete, phase, setPhase]);
 
