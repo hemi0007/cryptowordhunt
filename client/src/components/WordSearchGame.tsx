@@ -75,8 +75,7 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({
     // Mark this round as initialized
     initializedRoundRef.current = roundNumber;
 
-    // Reset game state for new round
-    setScore(0);
+    // Only reset the round completion state, not the score
     setRoundScoreCalculated(false);
 
     // Determine word count based on round number (increasing difficulty)
