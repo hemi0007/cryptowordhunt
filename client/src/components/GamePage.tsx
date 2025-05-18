@@ -5,7 +5,7 @@ import { CRYPTO_WORDS, DIFFICULTY_LEVELS } from "../lib/constants";
 import WordSearchGame from "./WordSearchGame";
 import EndGameModal from "./EndGameModal";
 
-function GamePage() {
+const GamePage = (): JSX.Element => {
   const { phase } = useGame();
   const [timer, setTimer] = useState(60);
   const [score, setScore] = useState(0);
@@ -17,7 +17,7 @@ function GamePage() {
   const [showModal, setShowModal] = useState(false);
   const [roundComplete, setRoundComplete] = useState(false);
   const [gameKey, setGameKey] = useState(Date.now()); // Key to force re-render of WordSearchGame
-  const intervalRef = useRef<number | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Reference to track the last processed score to prevent duplicate updates
   const lastScoreUpdateRef = useRef<{ round: number; found: number }>({ round: 1, found: 0 });
@@ -43,8 +43,10 @@ function GamePage() {
       setTimer((prev) => {
         if (prev <= 1) {
           // Time's up
-          clearInterval(intervalRef.current);
-          intervalRef.current = null;
+          if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null;
+          }
           return 0;
         }
         return prev - 1;
@@ -61,14 +63,14 @@ function GamePage() {
   }, [phase, timerPaused, roundNumber]); // Added roundNumber as dependency to ensure timer restarts
 
   // Format time as MM:SS
-  const formatTime = (seconds) => {
+  const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
   // Helper function to get a random set of words for next round
-  const getRandomWordsForRound = (count) => {
+  const getRandomWordsForRound = (count: number): string[] => {
     const availableWords = CRYPTO_WORDS.filter(
       (word) => !usedWordsRef.current.has(word),
     );
@@ -92,7 +94,7 @@ function GamePage() {
 
   // Update score and found words count from child components
   // FIXED: Direct score handling from WordSearchGame
-  const handleStatsUpdate = (roundScore, found, total) => {
+  const handleStatsUpdate = (roundScore: number, found: number, total: number): void => {
     console.log(
       `Stats update received: roundScore=${roundScore}, found=${found}, total=${total}, roundNumber=${roundNumber}`,
     );
@@ -183,7 +185,7 @@ function GamePage() {
   };
 
   // Handle timer pause/resume from power-ups
-  const handleTimerPause = (isPaused, powerUpStates) => {
+  const handleTimerPause = (isPaused: boolean, powerUpStates?: any): void => {
     console.log(
       `Timer pause state changed to: ${isPaused ? "PAUSED" : "RUNNING"}`,
     );
@@ -282,7 +284,6 @@ function GamePage() {
           onTimePause={handleTimerPause}
           roundNumber={roundNumber}
           getRandomWords={getRandomWordsForRound}
-          currentTotalScore={score} // Pass down current total score
         />
       </motion.div>
 
