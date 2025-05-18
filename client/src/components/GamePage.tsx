@@ -6,7 +6,8 @@ import WordSearchGame from "./WordSearchGame";
 import EndGameModal from "./EndGameModal";
 
 const GamePage = () => {
-  const { phase } = useGame();
+  // Destructure phase and setPhase from useGame hook
+  const { phase, setPhase } = useGame();
   const [timer, setTimer] = useState(60);
   const [score, setScore] = useState(0);
   const [foundWordsCount, setFoundWordsCount] = useState(0);
@@ -16,116 +17,97 @@ const GamePage = () => {
   const [roundNumber, setRoundNumber] = useState(1);
   const [showModal, setShowModal] = useState(false);
   const [roundComplete, setRoundComplete] = useState(false);
-  const [gameKey, setGameKey] = useState(Date.now()); // Key to force re-render of WordSearchGame
+  const [gameKey, setGameKey] = useState(Date.now());
   const intervalRef = useRef(null);
 
-  // Reference to track the last processed score to prevent duplicate updates
   const lastScoreUpdateRef = useRef({ round: 1, found: 0, score: 0 });
-
-  // Track used words to avoid repetition across rounds
   const usedWordsRef = useRef(new Set());
 
-  // Handle timer countdown - FIXED TIMING LOGIC
+  /** Timer Management Effect */
   useEffect(() => {
-    // Only run timer if we're in playing phase and not paused
     if (phase !== "playing" || timerPaused) {
       return;
     }
 
-    // Clear any existing interval first
+    // Clear any existing interval
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
 
-    // Set up new timer
+    // Set new interval to decrement timer
     intervalRef.current = setInterval(() => {
       setTimer((prev) => {
         if (prev <= 1) {
-          // Time's up
           clearInterval(intervalRef.current);
           intervalRef.current = null;
+          // Only set phase to ended if the round isn't complete
+          if (!roundComplete) {
+            setPhase("ended");
+          }
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
 
-    // Clean up on unmount or when dependencies change
+    // Cleanup interval on unmount or dependency change
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
     };
-  }, [phase, timerPaused, roundNumber]); // Added roundNumber as dependency to ensure timer restarts
+  }, [phase, timerPaused, roundNumber, roundComplete, setPhase]);
 
-  // Format time as MM:SS
+  /** Format time in MM:SS */
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
-  // Helper function to get a random set of words for next round
+  /** Get random words for the round */
   const getRandomWordsForRound = (count) => {
     const availableWords = CRYPTO_WORDS.filter(
       (word) => !usedWordsRef.current.has(word),
     );
 
-    // If we've used most words, reset the used words to allow reuse
     if (availableWords.length < count) {
       usedWordsRef.current.clear();
       return CRYPTO_WORDS.sort(() => Math.random() - 0.5).slice(0, count);
     }
 
-    // Select random words from available words
     const selectedWords = availableWords
       .sort(() => Math.random() - 0.5)
       .slice(0, count);
 
-    // Add to used words set
     selectedWords.forEach((word) => usedWordsRef.current.add(word));
 
     return selectedWords;
   };
 
-  // Update score and found words count from child components
+  /** Handle stats updates from WordSearchGame */
   const handleStatsUpdate = (roundScore, found, total) => {
-    // Check if this is a duplicate or invalid update
     const lastUpdate = lastScoreUpdateRef.current;
 
-    // Debug console logs to understand score updates
-    console.log(
-      `Stats update received: roundScore=${roundScore}, found=${found}, total=${total}, roundNumber=${roundNumber}`,
-    );
-    console.log(
-      `Last update: round=${lastUpdate.round}, found=${lastUpdate.found}, score=${lastUpdate.score}`,
-    );
-
-    // Only process if this is a legitimate update (new word found or new round)
     const isNewRound = lastUpdate.round !== roundNumber;
     const isNewWordFound = found > lastUpdate.found;
 
     if ((isNewRound || isNewWordFound) && !roundComplete) {
-      // Calculate the score to add (only the increment)
       const scoreToAdd = roundScore;
 
       if (isNewRound) {
-        // For a new round, set the score directly (no addition)
         console.log(
           `New round ${roundNumber}: Setting base score to ${scoreToAdd}`,
         );
-        // Don't update score here, just track that we've seen this round
       } else if (isNewWordFound) {
-        // For new words found, add the incremental score
         console.log(
           `Round ${roundNumber}: Found new word(s): ${found - lastUpdate.found}, adding score: ${scoreToAdd}`,
         );
         setScore((prevScore) => prevScore + scoreToAdd);
       }
 
-      // Update our tracking reference
       lastScoreUpdateRef.current = {
         round: roundNumber,
         found: found,
@@ -133,25 +115,20 @@ const GamePage = () => {
       };
     }
 
-    // Always update word counts
     setFoundWordsCount(found);
     setTotalWords(total);
 
-    // Only handle round completion if there are actual words found
-    // and we have a reasonable total (prevents initialization loops)
+    // Check if round is complete
     if (found === total && total > 0 && found > 0) {
-      // Prevent multiple round completion triggers
       if (!roundComplete) {
         console.log(
           `Round ${roundNumber} completed! Found: ${found}/${total}, Current Score: ${score}`,
         );
         setRoundComplete(true);
         setShowModal(true);
-
-        // Pause the timer when round is complete
         setTimerPaused(true);
 
-        // Make sure we stop any running timer interval
+        // Make sure we pause the timer
         if (intervalRef.current) {
           clearInterval(intervalRef.current);
           intervalRef.current = null;
@@ -160,55 +137,54 @@ const GamePage = () => {
     }
   };
 
-  // Handle continuing to the next round - FIXED TRANSITION LOGIC
+  /** Handle transition to next round */
   const handleContinueNextRound = () => {
-    // Important: Store current round before incrementing for bonus calculation
     const currentRound = roundNumber;
     const currentScore = score;
 
-    // Stop any existing timer
+    // Clear existing interval
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
 
-    // Reset round state first
+    // Reset round state
     setShowModal(false);
     setRoundComplete(false);
     setTimerPaused(false);
-
-    // Reset found words count but NOT the score
     setFoundWordsCount(0);
     setTotalWords(0);
 
-    // Calculate new time for next round
-    const baseTime = 60; // One minute base time
-    const roundBonus = Math.min(10 + currentRound * 5, 30); // Cap at 30 seconds
+    // Calculate new timer value
+    const baseTime = 60;
+    const roundBonus = Math.min(10 + currentRound * 5, 30);
     const newTime = baseTime + roundBonus;
 
-    // Set new timer value
+    // Reset the game phase to "playing" to prevent the "time's up" modal from persisting
+    setPhase("playing");
+
+    // Update state in the correct order
     setTimer(newTime);
+    setRoundNumber((prevRound) => prevRound + 1);
 
-    // Increment round number
+    // Update last score reference
     const nextRound = currentRound + 1;
-    setRoundNumber(nextRound);
-
-    // Update last score reference for the new round
     lastScoreUpdateRef.current = {
       round: nextRound,
       found: 0,
       score: currentScore,
     };
 
-    // Force component to re-render with new key immediately
+    // Force WordSearchGame to re-render with a new key
     setGameKey(Date.now());
 
+    // Debug log to confirm new round setup
     console.log(
-      `Starting round ${nextRound} with ${newTime} seconds, current score: ${currentScore}`,
+      `Starting round ${nextRound} with ${newTime} seconds, current score: ${currentScore}, phase: "playing"`,
     );
   };
 
-  // Handle timer pause/resume from power-ups
+  /** Handle timer pause and power-up effects */
   const handleTimerPause = (isPaused, powerUpStates) => {
     console.log(
       `Timer pause state changed to: ${isPaused ? "PAUSED" : "RUNNING"}`,
@@ -216,16 +192,21 @@ const GamePage = () => {
 
     setTimerPaused(isPaused);
 
-    // Handle adding time for FUD Shield
     if (powerUpStates?.addTime) {
       setTimer((prevTime) => prevTime + powerUpStates.addTime);
     }
 
-    // Update mining boost state if provided
     if (powerUpStates && typeof powerUpStates.miningActive !== "undefined") {
       setMiningActive(powerUpStates.miningActive);
     }
   };
+
+  // Additional effect to properly handle game phase transitions
+  useEffect(() => {
+    if (timer === 0 && !roundComplete && phase !== "ended") {
+      setPhase("ended");
+    }
+  }, [timer, roundComplete, phase, setPhase]);
 
   return (
     <motion.div
@@ -233,7 +214,6 @@ const GamePage = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
     >
-      {/* Game Header */}
       <header className="w-full flex flex-col md:flex-row justify-between items-center mb-6">
         <div className="flex flex-col items-center md:items-start">
           <motion.h1
@@ -254,7 +234,6 @@ const GamePage = () => {
           )}
         </div>
 
-        {/* Game Stats */}
         <motion.div
           className="flex space-x-6 mt-4 md:mt-0"
           initial={{ y: -20, opacity: 0 }}
@@ -295,25 +274,24 @@ const GamePage = () => {
         </motion.div>
       </header>
 
-      {/* Game Content */}
       <motion.div
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ delay: 0.3, type: "spring" }}
       >
         <WordSearchGame
-          key={gameKey} // Force re-render on new round
+          key={gameKey}
           onStatsUpdate={handleStatsUpdate}
           timeRemaining={timer}
           onTimePause={handleTimerPause}
           roundNumber={roundNumber}
           getRandomWords={getRandomWordsForRound}
-          currentTotalScore={score} // Pass down current total score
+          currentTotalScore={score}
         />
       </motion.div>
 
-      {/* End Game Modal - Shown at game end or when round complete */}
-      {(phase === "ended" || timer === 0) && !roundComplete && (
+      {/* End of game modal */}
+      {phase === "ended" && !roundComplete && (
         <EndGameModal
           score={score}
           foundWords={foundWordsCount}
@@ -321,8 +299,8 @@ const GamePage = () => {
         />
       )}
 
-      {/* Round Complete Modal - Only shown when round is complete but game not ended */}
-      {showModal && roundComplete && phase === "playing" && (
+      {/* Round completion modal */}
+      {showModal && roundComplete && (
         <EndGameModal
           score={score}
           foundWords={foundWordsCount}
