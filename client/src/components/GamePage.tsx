@@ -200,11 +200,8 @@ const GamePage = () => {
       score: currentScore,
     };
 
-    // Force WordSearchGame to re-render with new key
-    // Delay slightly to ensure state updates have processed
-    setTimeout(() => {
-      setGameKey(Date.now());
-    }, 50);
+    // Force component to re-render with new key immediately
+    setGameKey(Date.now());
 
     console.log(
       `Starting round ${nextRound} with ${newTime} seconds, current score: ${currentScore}`,
