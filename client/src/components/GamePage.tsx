@@ -18,7 +18,7 @@ const GamePage = () => {
   const [roundComplete, setRoundComplete] = useState(false);
   const [gameKey, setGameKey] = useState(Date.now()); // Key to force re-render of WordSearchGame
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  
+
   // Track used words to avoid repetition across rounds
   const usedWordsRef = useRef<Set<string>>(new Set());
 
@@ -71,7 +71,7 @@ const GamePage = () => {
   // Helper function to get a random set of words for next round
   const getRandomWordsForRound = (count: number) => {
     const availableWords = CRYPTO_WORDS.filter(word => !usedWordsRef.current.has(word));
-    
+
     // If we've used most words, reset the used words to allow reuse
     if (availableWords.length < count) {
       usedWordsRef.current.clear();
@@ -79,15 +79,15 @@ const GamePage = () => {
         .sort(() => Math.random() - 0.5)
         .slice(0, count);
     }
-    
+
     // Select random words from available words
     const selectedWords = availableWords
       .sort(() => Math.random() - 0.5)
       .slice(0, count);
-    
+
     // Add to used words set
     selectedWords.forEach(word => usedWordsRef.current.add(word));
-    
+
     return selectedWords;
   };
 
@@ -96,7 +96,7 @@ const GamePage = () => {
     setScore(newScore);
     setFoundWordsCount(found);
     setTotalWords(total);
-    
+
     // Only handle round completion if there are actual words found
     // and we have a reasonable total (prevents initialization loops)
     if (found === total && total > 0 && found > 0) {
@@ -105,7 +105,7 @@ const GamePage = () => {
         console.log(`Round ${roundNumber} completed! Score: ${newScore}, Found: ${found}/${total}`);
         setRoundComplete(true);
         setShowModal(true);
-        
+
         // Pause the timer when round is complete
         setTimerPaused(true);
       }
@@ -115,26 +115,28 @@ const GamePage = () => {
   // Handle continuing to the next round
   const handleContinueNextRound = () => {
     // Calculate time bonus from previous round (this is already done in WordSearchGame)
-    
+
+    // Important: Store current round before incrementing for bonus calculation
+    const currentRound = roundNumber;
+
     // Increment round number
     setRoundNumber(prev => prev + 1);
-    
+
     // Set fresh timer for the new round (base time + bonus for higher rounds)
-    const baseTime = 60;
-    const roundBonus = Math.min(10 + (roundNumber * 5), 30); // Cap at 30 seconds
-    setTimer(baseTime + roundBonus);
-    
+    const baseTime = 60; // One minute base time
+    const roundBonus = Math.min(10 + (currentRound * 5), 30); // Cap at 30 seconds
+    const newTime = baseTime + roundBonus;
+
+    // Set the timer with the new value
+    setTimer(newTime);
+
     // Reset round completion status
     setRoundComplete(false);
-    setShowModal(false);
-    
-    // Force WordSearchGame to reinitialize with new words
-    setGameKey(Date.now());
-    
+
     // Reset timer pause state
     setTimerPaused(false);
-    
-    console.log(`Starting round ${roundNumber + 1} with ${baseTime + roundBonus} seconds`);
+
+    console.log(`Starting round ${currentRound + 1} with ${newTime} seconds`);
   };
 
   // Handle timer pause/resume from power-ups and other power-up states
@@ -230,7 +232,7 @@ const GamePage = () => {
           totalWords={totalWords} 
         />
       )}
-      
+
       {/* Round Complete Modal - Only shown when round is complete but game not ended */}
       {showModal && roundComplete && phase === "playing" && (
         <EndGameModal 
