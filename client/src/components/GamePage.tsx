@@ -119,28 +119,37 @@ const GamePage = () => {
     // Important: Store current round before incrementing for bonus calculation
     const currentRound = roundNumber;
 
-    // Increment round number
-    setRoundNumber(prev => prev + 1);
+    // Important: Clear any existing interval first to prevent timer conflicts
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
 
+    // Close the modal first
+    setShowModal(false);
+    setRoundComplete(false);
+    
+    // Set timer pause state before updating the timer value
+    setTimerPaused(false);
+    
     // Set fresh timer for the new round (base time + bonus for higher rounds)
     const baseTime = 60; // One minute base time
     const roundBonus = Math.min(10 + (currentRound * 5), 30); // Cap at 30 seconds
     const newTime = baseTime + roundBonus;
-
+    
     // Set the timer with the new value
     setTimer(newTime);
-
-    // Reset round completion status
-    setRoundComplete(false);
-    setShowModal(false); // Close the modal
-
-    // Force WordSearchGame to reinitialize with new words
-    setGameKey(Date.now());
-
-    // Reset timer pause state
-    setTimerPaused(false);
-
-    console.log(`Starting round ${currentRound + 1} with ${newTime} seconds`);
+    
+    // Force WordSearchGame to reinitialize with new words (with a slight delay)
+    setTimeout(() => {
+      // Increment round number
+      setRoundNumber(prev => prev + 1);
+      
+      // Force component to re-render with new key
+      setGameKey(Date.now());
+      
+      console.log(`Starting round ${currentRound + 1} with ${newTime} seconds`);
+    }, 100); // Short delay to ensure state is updated properly
   };
 
   // Handle timer pause/resume from power-ups and other power-up states
