@@ -206,7 +206,7 @@ const GamePage = () => {
     if (timer === 0 && !roundComplete && phase !== "ended") {
       end();
     }
-  }, [timer, roundComplete, phase, setPhase]);
+  }, [timer, roundComplete, phase, end]);
 
   return (
     <motion.div
