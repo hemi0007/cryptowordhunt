@@ -9,9 +9,17 @@ interface EndGameModalProps {
   score: number;
   foundWords: number;
   totalWords: number;
+  onContinueNextRound?: () => void;
+  roundComplete?: boolean;
 }
 
-const EndGameModal: React.FC<EndGameModalProps> = ({ score, foundWords, totalWords }) => {
+const EndGameModal: React.FC<EndGameModalProps> = ({ 
+  score, 
+  foundWords, 
+  totalWords,
+  onContinueNextRound,
+  roundComplete = false
+}) => {
   const { restart } = useGame();
   const [isSuccess, setIsSuccess] = useState(false);
   const [view, setView] = useState<'result' | 'submitScore' | 'leaderboard'>('result');
@@ -136,14 +144,25 @@ const EndGameModal: React.FC<EndGameModalProps> = ({ score, foundWords, totalWor
               
               {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row gap-3 mb-4">
-                <motion.button
-                  className="flex-1 bg-primary text-foreground py-2 px-4 rounded-md"
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={handlePlayAgain}
-                >
-                  <i className="fas fa-play mr-2"></i> Play Again
-                </motion.button>
+                {roundComplete && onContinueNextRound ? (
+                  <motion.button
+                    className="flex-1 bg-green-600 text-foreground py-2 px-4 rounded-md"
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={onContinueNextRound}
+                  >
+                    <i className="fas fa-forward mr-2"></i> Continue to Next Round
+                  </motion.button>
+                ) : (
+                  <motion.button
+                    className="flex-1 bg-primary text-foreground py-2 px-4 rounded-md"
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={handlePlayAgain}
+                  >
+                    <i className="fas fa-play mr-2"></i> Play Again
+                  </motion.button>
+                )}
                 
                 <motion.button
                   className="flex-1 bg-blue-600 text-foreground py-2 px-4 rounded-md"

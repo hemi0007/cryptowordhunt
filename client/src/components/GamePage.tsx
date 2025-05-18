@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useGame } from "../lib/stores/useGame";
+import { CRYPTO_WORDS, DIFFICULTY_LEVELS } from "../lib/constants";
 import WordSearchGame from "./WordSearchGame";
 import EndGameModal from "./EndGameModal";
 
@@ -12,7 +13,14 @@ const GamePage = () => {
   const [totalWords, setTotalWords] = useState(0);
   const [timerPaused, setTimerPaused] = useState(false);
   const [miningActive, setMiningActive] = useState(false);
+  const [roundNumber, setRoundNumber] = useState(1);
+  const [showModal, setShowModal] = useState(false);
+  const [roundComplete, setRoundComplete] = useState(false);
+  const [gameKey, setGameKey] = useState(Date.now()); // Key to force re-render of WordSearchGame
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Track used words to avoid repetition across rounds
+  const usedWordsRef = useRef<Set<string>>(new Set());
 
   // Handle timer countdown
   useEffect(() => {
@@ -60,11 +68,63 @@ const GamePage = () => {
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
+  // Helper function to get a random set of words for next round
+  const getRandomWordsForRound = (count: number) => {
+    const availableWords = CRYPTO_WORDS.filter(word => !usedWordsRef.current.has(word));
+    
+    // If we've used most words, reset the used words to allow reuse
+    if (availableWords.length < count) {
+      usedWordsRef.current.clear();
+      return CRYPTO_WORDS
+        .sort(() => Math.random() - 0.5)
+        .slice(0, count);
+    }
+    
+    // Select random words from available words
+    const selectedWords = availableWords
+      .sort(() => Math.random() - 0.5)
+      .slice(0, count);
+    
+    // Add to used words set
+    selectedWords.forEach(word => usedWordsRef.current.add(word));
+    
+    return selectedWords;
+  };
+
   // Update score and found words count from child components
   const handleStatsUpdate = (newScore: number, found: number, total: number) => {
     setScore(newScore);
     setFoundWordsCount(found);
     setTotalWords(total);
+    
+    // Check if all words are found to trigger round completion
+    if (found === total) {
+      setRoundComplete(true);
+      setShowModal(true);
+      
+      // Pause the timer when round is complete
+      setTimerPaused(true);
+    }
+  };
+
+  // Handle continuing to the next round
+  const handleContinueNextRound = () => {
+    // Increment round number
+    setRoundNumber(prev => prev + 1);
+    
+    // Add bonus time for next round (more time for higher rounds)
+    const bonusTime = Math.min(10 + (roundNumber * 5), 30); // Cap at 30 seconds
+    setTimer(prev => prev + bonusTime);
+    
+    // Reset round completion status
+    setRoundComplete(false);
+    setShowModal(false);
+    
+    // Force WordSearchGame to reinitialize with new words
+    setGameKey(Date.now());
+    
+    // Reset timer pause state
+    setTimerPaused(false);
   };
 
   // Handle timer pause/resume from power-ups and other power-up states
