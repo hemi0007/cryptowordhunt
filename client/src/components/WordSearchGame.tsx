@@ -116,25 +116,39 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({
     }
   }, [miningActive, onTimePause]);
   
+  // Track if we've already calculated final score for this round
+  const [roundScoreCalculated, setRoundScoreCalculated] = useState(false);
+  
   // Update parent component with stats
   useEffect(() => {
-    onStatsUpdate(score, foundWords.length, placedWords.length);
+    // Regular stats update during normal gameplay
+    if (!roundScoreCalculated) {
+      onStatsUpdate(score, foundWords.length, placedWords.length);
+    }
     
     // Game is complete when all words are found
-    if (foundWords.length > 0 && foundWords.length === placedWords.length) {
+    if (foundWords.length > 0 && foundWords.length === placedWords.length && !roundScoreCalculated) {
       // Add bonus for remaining time
       const timeBonus = timeRemaining * 10;
       const roundBonus = roundNumber * 50; // Extra bonus for higher rounds
       const finalScore = score + timeBonus + roundBonus;
       
+      // Set flag to prevent multiple updates
+      setRoundScoreCalculated(true);
+      
+      // Update score once
       setScore(finalScore);
       onStatsUpdate(finalScore, foundWords.length, placedWords.length);
       
-      // Don't end the game - let parent component handle continuing to next round
-      // end();
+      // Play success sound once
       playSuccess();
     }
-  }, [foundWords.length, placedWords.length, score, timeRemaining, roundNumber, onStatsUpdate, playSuccess]);
+  }, [foundWords.length, placedWords.length, score, timeRemaining, roundNumber, onStatsUpdate, playSuccess, roundScoreCalculated]);
+  
+  // Reset the round score calculation flag when round changes
+  useEffect(() => {
+    setRoundScoreCalculated(false);
+  }, [roundNumber]);
   
   // Time's up
   useEffect(() => {
