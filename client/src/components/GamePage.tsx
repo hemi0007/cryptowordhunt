@@ -43,7 +43,7 @@ const GamePage = () => {
           intervalRef.current = null;
           // Only set phase to ended if the round isn't complete
           if (!roundComplete) {
-            setPhase("ended");
+            end();
           }
           return 0;
         }
