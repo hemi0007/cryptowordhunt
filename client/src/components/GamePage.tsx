@@ -5,7 +5,7 @@ import { CRYPTO_WORDS, DIFFICULTY_LEVELS } from "../lib/constants";
 import WordSearchGame from "./WordSearchGame";
 import EndGameModal from "./EndGameModal";
 
-const GamePage = (): JSX.Element => {
+const GamePage = () => {
   const { phase } = useGame();
   const [timer, setTimer] = useState(60);
   const [score, setScore] = useState(0);
@@ -17,13 +17,13 @@ const GamePage = (): JSX.Element => {
   const [showModal, setShowModal] = useState(false);
   const [roundComplete, setRoundComplete] = useState(false);
   const [gameKey, setGameKey] = useState(Date.now()); // Key to force re-render of WordSearchGame
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const intervalRef = useRef(null);
 
   // Reference to track the last processed score to prevent duplicate updates
-  const lastScoreUpdateRef = useRef<{ round: number; found: number }>({ round: 1, found: 0 });
+  const lastScoreUpdateRef = useRef({ round: 1, found: 0 });
 
   // Track used words to avoid repetition across rounds
-  const usedWordsRef = useRef<Set<string>>(new Set());
+  const usedWordsRef = useRef(new Set());
 
   // Handle timer countdown - FIXED TIMING LOGIC
   useEffect(() => {
@@ -43,10 +43,8 @@ const GamePage = (): JSX.Element => {
       setTimer((prev) => {
         if (prev <= 1) {
           // Time's up
-          if (intervalRef.current) {
-            clearInterval(intervalRef.current);
-            intervalRef.current = null;
-          }
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
           return 0;
         }
         return prev - 1;
@@ -63,14 +61,14 @@ const GamePage = (): JSX.Element => {
   }, [phase, timerPaused, roundNumber]); // Added roundNumber as dependency to ensure timer restarts
 
   // Format time as MM:SS
-  const formatTime = (seconds: number): string => {
+  const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
   // Helper function to get a random set of words for next round
-  const getRandomWordsForRound = (count: number): string[] => {
+  const getRandomWordsForRound = (count) => {
     const availableWords = CRYPTO_WORDS.filter(
       (word) => !usedWordsRef.current.has(word),
     );
@@ -93,8 +91,7 @@ const GamePage = (): JSX.Element => {
   };
 
   // Update score and found words count from child components
-  // FIXED: Direct score handling from WordSearchGame
-  const handleStatsUpdate = (roundScore: number, found: number, total: number): void => {
+  const handleStatsUpdate = (roundScore, found, total) => {
     console.log(
       `Stats update received: roundScore=${roundScore}, found=${found}, total=${total}, roundNumber=${roundNumber}`,
     );
@@ -103,9 +100,14 @@ const GamePage = (): JSX.Element => {
     setFoundWordsCount(found);
     setTotalWords(total);
 
-    // FIXED: Update the score directly based on the roundScore value
-    // This assumes WordSearchGame is sending the correct incremental score to add
-    setScore((prevScore) => prevScore + roundScore);
+    // Make sure roundScore is a number
+    const scoreToAdd = typeof roundScore === "number" ? roundScore : 0;
+
+    // Only update score if we have a valid score to add
+    if (scoreToAdd > 0) {
+      setScore((prevScore) => prevScore + scoreToAdd);
+      console.log(`Adding ${scoreToAdd} points to score`);
+    }
 
     // Track this update to prevent duplicates
     lastScoreUpdateRef.current = {
@@ -117,9 +119,7 @@ const GamePage = (): JSX.Element => {
     if (found === total && total > 0 && found > 0) {
       // Prevent multiple round completion triggers
       if (!roundComplete) {
-        console.log(
-          `Round ${roundNumber} completed! Found: ${found}/${total}, Current Score: ${score + roundScore}`,
-        );
+        console.log(`Round ${roundNumber} completed! Found: ${found}/${total}`);
         setRoundComplete(true);
         setShowModal(true);
 
@@ -185,7 +185,7 @@ const GamePage = (): JSX.Element => {
   };
 
   // Handle timer pause/resume from power-ups
-  const handleTimerPause = (isPaused: boolean, powerUpStates?: any): void => {
+  const handleTimerPause = (isPaused, powerUpStates) => {
     console.log(
       `Timer pause state changed to: ${isPaused ? "PAUSED" : "RUNNING"}`,
     );
@@ -284,6 +284,7 @@ const GamePage = (): JSX.Element => {
           onTimePause={handleTimerPause}
           roundNumber={roundNumber}
           getRandomWords={getRandomWordsForRound}
+          currentTotalScore={score} // Pass down current total score
         />
       </motion.div>
 
