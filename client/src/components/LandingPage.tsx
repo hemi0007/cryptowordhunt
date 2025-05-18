@@ -116,16 +116,16 @@ const LandingPage = () => {
                   animate={{ opacity: 1, y: 0 }}
                   className="p-4 border rounded-md mt-2 bg-card/50"
                 >
-                  <h3 className="font-bold text-sm mb-2 text-primary">Game Instructions:</h3>
-                  <ol className="text-sm space-y-2 list-decimal pl-5">
-                    <li>Find crypto-themed words in the grid</li>
-                    <li>Drag to select letters horizontally, vertically, or diagonally</li>
-                    <li>Use power-ups to help you find all words before time runs out</li>
-                    <li>⛏️ Mining Boost: 2x score for 30 seconds</li>
-                    <li>🛡️ FUD Shield: Pauses timer and adds 40 seconds to the clock</li>
-                    <li><span className="text-green-400">NEW!</span> Find all words to advance to the next round and keep building your score</li>
-                    <li>Each new round gets more challenging with more words and a bigger grid</li>
-                    <li>Earn round bonuses that increase with each level you complete</li>
+                  <h3 className="font-bold text-sm mb-2 text-primary text-left">Game Instructions:</h3>
+                  <ol className="text-sm space-y-2 list-decimal pl-5 text-left">
+                    <li className="text-left">Find crypto-themed words in the grid</li>
+                    <li className="text-left">Drag to select letters horizontally, vertically, or diagonally</li>
+                    <li className="text-left">Use power-ups to help you find all words before time runs out</li>
+                    <li className="text-left">⛏️ Mining Boost: 2x score for 30 seconds</li>
+                    <li className="text-left">🛡️ FUD Shield: Pauses timer and adds 40 seconds to the clock</li>
+                    <li className="text-left"><span className="text-green-400">NEW!</span> Find all words to advance to the next round and keep building your score</li>
+                    <li className="text-left">Each new round gets more challenging with more words and a bigger grid</li>
+                    <li className="text-left">Earn round bonuses that increase with each level you complete</li>
                   </ol>
                 </motion.div>
               )}
