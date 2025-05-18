@@ -146,8 +146,7 @@ const GamePage = () => {
     // Force component to re-render with new key
     setGameKey(Date.now());
 
-    // Reset only round state for new round, NOT the score
-    setRoundScoreCalculated(false);
+    // The round state will be reset in the WordSearchGame component when it reinitializes
 
     console.log(`Starting round ${currentRound + 1} with ${newTime} seconds`);
   };
