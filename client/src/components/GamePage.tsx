@@ -20,7 +20,7 @@ const GamePage = () => {
   const intervalRef = useRef(null);
 
   // Reference to track the last processed score to prevent duplicate updates
-  const lastScoreUpdateRef = useRef({ round: 1, found: 0 });
+  const lastScoreUpdateRef = useRef({ round: 1, found: 0, score: 0 });
 
   // Track used words to avoid repetition across rounds
   const usedWordsRef = useRef(new Set());
@@ -92,34 +92,59 @@ const GamePage = () => {
 
   // Update score and found words count from child components
   const handleStatsUpdate = (roundScore, found, total) => {
+    // Check if this is a duplicate or invalid update
+    const lastUpdate = lastScoreUpdateRef.current;
+
+    // Debug console logs to understand score updates
     console.log(
       `Stats update received: roundScore=${roundScore}, found=${found}, total=${total}, roundNumber=${roundNumber}`,
     );
+    console.log(
+      `Last update: round=${lastUpdate.round}, found=${lastUpdate.found}, score=${lastUpdate.score}`,
+    );
+
+    // Only process if this is a legitimate update (new word found or new round)
+    const isNewRound = lastUpdate.round !== roundNumber;
+    const isNewWordFound = found > lastUpdate.found;
+
+    if ((isNewRound || isNewWordFound) && !roundComplete) {
+      // Calculate the score to add (only the increment)
+      const scoreToAdd = roundScore;
+
+      if (isNewRound) {
+        // For a new round, set the score directly (no addition)
+        console.log(
+          `New round ${roundNumber}: Setting base score to ${scoreToAdd}`,
+        );
+        // Don't update score here, just track that we've seen this round
+      } else if (isNewWordFound) {
+        // For new words found, add the incremental score
+        console.log(
+          `Round ${roundNumber}: Found new word(s): ${found - lastUpdate.found}, adding score: ${scoreToAdd}`,
+        );
+        setScore((prevScore) => prevScore + scoreToAdd);
+      }
+
+      // Update our tracking reference
+      lastScoreUpdateRef.current = {
+        round: roundNumber,
+        found: found,
+        score: isNewRound ? lastUpdate.score : lastUpdate.score + scoreToAdd,
+      };
+    }
 
     // Always update word counts
     setFoundWordsCount(found);
     setTotalWords(total);
 
-    // Make sure roundScore is a number
-    const scoreToAdd = typeof roundScore === "number" ? roundScore : 0;
-
-    // Only update score if we have a valid score to add
-    if (scoreToAdd > 0) {
-      setScore((prevScore) => prevScore + scoreToAdd);
-      console.log(`Adding ${scoreToAdd} points to score`);
-    }
-
-    // Track this update to prevent duplicates
-    lastScoreUpdateRef.current = {
-      round: roundNumber,
-      found: found,
-    };
-
-    // Handle round completion
+    // Only handle round completion if there are actual words found
+    // and we have a reasonable total (prevents initialization loops)
     if (found === total && total > 0 && found > 0) {
       // Prevent multiple round completion triggers
       if (!roundComplete) {
-        console.log(`Round ${roundNumber} completed! Found: ${found}/${total}`);
+        console.log(
+          `Round ${roundNumber} completed! Found: ${found}/${total}, Current Score: ${score}`,
+        );
         setRoundComplete(true);
         setShowModal(true);
 
@@ -139,6 +164,7 @@ const GamePage = () => {
   const handleContinueNextRound = () => {
     // Important: Store current round before incrementing for bonus calculation
     const currentRound = roundNumber;
+    const currentScore = score;
 
     // Stop any existing timer
     if (intervalRef.current) {
@@ -171,6 +197,7 @@ const GamePage = () => {
     lastScoreUpdateRef.current = {
       round: nextRound,
       found: 0,
+      score: currentScore,
     };
 
     // Force WordSearchGame to re-render with new key
@@ -180,7 +207,7 @@ const GamePage = () => {
     }, 50);
 
     console.log(
-      `Starting round ${nextRound} with ${newTime} seconds, current score: ${score}`,
+      `Starting round ${nextRound} with ${newTime} seconds, current score: ${currentScore}`,
     );
   };
 
@@ -310,3 +337,5 @@ const GamePage = () => {
     </motion.div>
   );
 };
+
+export default GamePage;
