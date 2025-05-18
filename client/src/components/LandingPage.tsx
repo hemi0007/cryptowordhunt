@@ -122,7 +122,7 @@ const LandingPage = () => {
                     <li>Drag to select letters horizontally, vertically, or diagonally</li>
                     <li>Use power-ups to help you find all words before time runs out</li>
                     <li>⛏️ Mining Boost: 2x score for 30 seconds</li>
-                    <li>🛡️ FUD Shield: Pauses timer for 10 seconds</li>
+                    <li>🛡️ FUD Shield: Pauses timer and adds 40 seconds to the clock</li>
                     <li><span className="text-green-400">NEW!</span> Find all words to advance to the next round and keep building your score</li>
                     <li>Each new round gets more challenging with more words and a bigger grid</li>
                     <li>Earn round bonuses that increase with each level you complete</li>
