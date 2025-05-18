@@ -282,25 +282,24 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({ onStatsUpdate, timeRema
     
     setFudShieldActive(true);
     setFudShieldUsed(true); // Mark as used (one-time use)
-    console.log("FUD Shield activated - pausing timer (one-time use)");
+    console.log("FUD Shield activated - adding 40 seconds");
     playSuccess(); // Play sound effect
-    
-    // Pause the timer by notifying parent component
+
+    // Add 40 seconds to the timer by momentarily pausing and updating time
     if (onTimePause) {
-      // The first parameter is the pause state
-      onTimePause(true);
+      onTimePause(true, { addTime: 40 });
     }
     
-    // Turn off after 10 seconds
+    // Visual feedback that power-up is active
     setTimeout(() => {
       setFudShieldActive(false);
-      console.log("FUD Shield deactivated - resuming timer");
+      console.log("FUD Shield effect applied");
       playHit(); // Play sound effect for deactivation
       // Resume the timer
       if (onTimePause) {
         onTimePause(false);
       }
-    }, 10000);
+    }, 1000);
     
     // Set cooldown for UI feedback
     setFudShieldCooldown(true);

@@ -13,17 +13,17 @@ const GamePage = () => {
   const [timerPaused, setTimerPaused] = useState(false);
   const [miningActive, setMiningActive] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  
+
   // Handle timer countdown
   useEffect(() => {
     if (phase !== "playing") return;
-    
+
     // Clear any existing interval
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
-    
+
     // Set up timer only if not paused
     if (!timerPaused) {
       console.log("Timer running - not paused");
@@ -66,15 +66,22 @@ const GamePage = () => {
     setFoundWordsCount(found);
     setTotalWords(total);
   };
-  
+
   // Handle timer pause/resume from power-ups and other power-up states
   const handleTimerPause = (isPaused: boolean, powerUpStates?: any) => {
     console.log(`Timer pause state changed to: ${isPaused ? "PAUSED" : "RUNNING"}`);
     setTimerPaused(isPaused);
-    
+
     // Update mining boost state if provided
     if (powerUpStates && typeof powerUpStates.miningActive !== 'undefined') {
       setMiningActive(powerUpStates.miningActive);
+    }
+  };
+
+  const handleTimePause = (isPaused: boolean, options?: { addTime?: number }) => {
+    setTimerPaused(isPaused);
+    if (options?.addTime) {
+      setTimer(prev => prev + options.addTime);
     }
   };
 
@@ -93,7 +100,7 @@ const GamePage = () => {
         >
           ChainWords
         </motion.h1>
-        
+
         {/* Game Stats */}
         <motion.div 
           className="flex space-x-6 mt-4 md:mt-0"
@@ -105,12 +112,12 @@ const GamePage = () => {
             <div className="text-sm uppercase tracking-wide text-muted-foreground">Score</div>
             <div className="text-xl font-mono neon-green score-value">{score}</div>
           </div>
-          
+
           <div className="text-center">
             <div className="text-sm uppercase tracking-wide text-muted-foreground">Words</div>
             <div className="text-xl font-mono neon-green">{foundWordsCount}/{totalWords}</div>
           </div>
-          
+
           <div className={`text-center ${timerPaused ? 'fud-shield-active' : ''}`}>
             <div className="text-sm uppercase tracking-wide text-muted-foreground">Time</div>
             <div className={`text-xl font-mono timer-value ${timerPaused ? "text-amber-500" : timer <= 10 ? "text-red-500" : "neon-blue"}`}>
