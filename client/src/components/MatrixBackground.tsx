@@ -1,65 +1,84 @@
 import { useEffect, useRef, memo } from "react";
 
-// Reduced symbol set for better performance
-const CRYPTO_SYMBOLS = "₿ΞÐΞΤΗ🚀💎🙌";
+// Further reduced symbol set for better performance
+const CRYPTO_SYMBOLS = "₿ΞÐΤΗ🚀";
 
-// Performance optimized matrix background
+// Hyper-optimized matrix background for faster loading and rendering
 const MatrixBackground = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   
   useEffect(() => {
+    // Delayed animation start - don't block initial page load
+    const initDelay = setTimeout(() => {
+      startMatrixAnimation();
+    }, 100);
+    
+    return () => clearTimeout(initDelay);
+  }, []);
+  
+  // Separate function for animation to reduce initial load time
+  const startMatrixAnimation = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext("2d", { alpha: false }); // Disable alpha for performance
+    const ctx = canvas.getContext("2d", { 
+      alpha: false,
+      desynchronized: true, // Hint for possible performance improvements
+    });
     if (!ctx) return;
 
     // Track if component is mounted
     let isMounted = true;
     
-    // Set canvas dimensions with a throttled resize handler
+    // Set canvas dimensions at a lower resolution for better performance
     const resizeCanvas = () => {
       if (!isMounted || !canvas) return;
       
-      // Only set dimensions if they've actually changed
-      if (canvas.width !== window.innerWidth || canvas.height !== window.innerHeight) {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+      // Use 80% of the actual resolution for better performance
+      // This gives a slight blur but dramatically improves performance
+      const scaleFactor = window.devicePixelRatio > 1 ? 0.5 : 0.8;
+      const width = Math.floor(window.innerWidth * scaleFactor);
+      const height = Math.floor(window.innerHeight * scaleFactor);
+      
+      // Only resize if needed
+      if (canvas.width !== width || canvas.height !== height) {
+        canvas.width = width;
+        canvas.height = height;
+        canvas.style.width = `${window.innerWidth}px`;
+        canvas.style.height = `${window.innerHeight}px`;
       }
     };
 
     // Initial size
     resizeCanvas();
     
-    // Throttled resize listener
-    let resizeTimeout: number;
+    // Ultra-throttled resize listener - only respond every 500ms max
+    let resizeTimeout: number | null = null;
     const handleResize = () => {
-      if (resizeTimeout) window.cancelAnimationFrame(resizeTimeout);
-      resizeTimeout = window.requestAnimationFrame(resizeCanvas);
+      if (resizeTimeout) clearTimeout(resizeTimeout);
+      resizeTimeout = window.setTimeout(resizeCanvas, 500);
     };
     window.addEventListener("resize", handleResize);
 
-    // Matrix rain setup - optimize by reducing number of columns
+    // Matrix rain setup - drastically reduce number of columns
     const fontSize = 16;
-    // Use fewer columns for better performance
-    const density = window.innerWidth > 1200 ? 0.6 : 0.4; // Reduce density on smaller screens
+    // Use very low density for much better performance
+    const density = window.innerWidth > 1200 ? 0.3 : 0.2;
     const columns = Math.ceil((canvas.width / fontSize) * density);
     const drops: number[] = Array(columns).fill(1);
     
-    // Pre-generate random symbols for reuse
-    const symbolCache = Array(20).fill(0).map(() => 
-      CRYPTO_SYMBOLS.charAt(Math.floor(Math.random() * CRYPTO_SYMBOLS.length))
-    );
+    // Pre-generate all random symbols just once
+    const symbolCache = CRYPTO_SYMBOLS.split('');
     
-    // Use requestAnimationFrame instead of setInterval for smoother animation
+    // Use much lower frame rate (60fps -> 15fps)
     let lastFrameTime = 0;
-    const frameRate = 25; // Lower frame rate for better performance (was 20ms, now 40ms)
+    const frameRate = 70; // Render at ~14fps for much better performance
     
-    // Animation function using RAF with time-based throttling
+    // Ultra optimized animation function
     const drawMatrix = (timestamp: number) => {
       if (!isMounted) return;
       
-      // Skip frames for performance
+      // Skip frames aggressively
       if (timestamp - lastFrameTime < frameRate) {
         requestAnimationFrame(drawMatrix);
         return;
@@ -67,28 +86,28 @@ const MatrixBackground = () => {
       
       lastFrameTime = timestamp;
       
-      // Semi-transparent black to create trail effect - with improved opacity value
-      ctx.fillStyle = "rgba(0, 0, 0, 0.075)"; // Slightly more transparent for better performance
+      // More transparent fade for better performance
+      ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Set text properties
+      // Set text properties once
       ctx.fillStyle = "#00ff00";
       ctx.font = `${fontSize}px monospace`;
 
-      // Draw each character - batch operations when possible
-      for (let i = 0; i < drops.length; i++) {
-        // Use cached symbols for better performance
+      // Draw only 50% of characters each frame for better performance
+      for (let i = 0; i < drops.length; i += 2) {
+        // Get a random symbol from our tiny cache
         const symbol = symbolCache[Math.floor(Math.random() * symbolCache.length)];
         const x = i * (fontSize / density);
         const y = drops[i] * fontSize;
 
-        // Only draw if on screen
-        if (y > 0 && y < canvas.height) {
+        // Only draw if fully on screen (stricter check)
+        if (y > fontSize && y < canvas.height - fontSize) {
           ctx.fillText(symbol, x, y);
         }
 
-        // Reset to top or continue falling - with optimized random check
-        if (y > canvas.height && Math.random() > 0.98) {
+        // Simplified physics with less randomness
+        if (y > canvas.height) {
           drops[i] = 0;
         } else {
           drops[i]++;
@@ -98,15 +117,16 @@ const MatrixBackground = () => {
       requestAnimationFrame(drawMatrix);
     };
 
-    // Start animation
+    // Start animation with a slight delay
     requestAnimationFrame(drawMatrix);
 
     // Cleanup
     return () => {
       isMounted = false;
       window.removeEventListener("resize", handleResize);
+      if (resizeTimeout) clearTimeout(resizeTimeout);
     };
-  }, []);
+  };
 
   // Use React.memo to prevent unnecessary re-renders
   return (
@@ -120,7 +140,8 @@ const MatrixBackground = () => {
         left: 0,
         width: '100%',
         height: '100%',
-        zIndex: -10 
+        zIndex: -10,
+        opacity: 0.8 // Slightly transparent for better performance
       }}
     />
   );

@@ -1,7 +1,7 @@
 // Sound effects manager for the game
 
 /**
- * Loads all game sound effects
+ * Loads all game sound effects with improved performance
  * @returns Promise with audio elements
  */
 export async function loadSounds(): Promise<{
@@ -9,79 +9,31 @@ export async function loadSounds(): Promise<{
   hitSound: HTMLAudioElement;
   successSound: HTMLAudioElement;
 }> {
-  return new Promise((resolve, reject) => {
-    try {
-      // Create audio elements with optimized settings
-      const backgroundMusic = new Audio();
-      backgroundMusic.src = '/sounds/background.mp3';
-      backgroundMusic.loop = true;
-      backgroundMusic.volume = 0.3;
-      backgroundMusic.preload = 'none'; // Only load when explicitly requested
-      
-      // Hit sound - small sound, can be loaded on demand
-      const hitSound = new Audio();
-      hitSound.volume = 0.5;
-      hitSound.preload = 'none';
-      
-      // Success sound - load on demand
-      const successSound = new Audio();
-      successSound.volume = 0.5;
-      successSound.preload = 'none';
+  // Create audio elements with optimized settings
+  const backgroundMusic = new Audio();
+  backgroundMusic.loop = true;
+  backgroundMusic.volume = 0.3;
+  
+  // Create empty sounds that will be loaded on demand
+  const hitSound = new Audio();
+  hitSound.volume = 0.5;
+  
+  const successSound = new Audio();
+  successSound.volume = 0.5;
 
-      // Create a simplified loading process
-      const loadSound = (sound: HTMLAudioElement, src: string) => {
-        return new Promise<void>((res, rej) => {
-          const onLoaded = () => {
-            sound.removeEventListener('canplaythrough', onLoaded);
-            sound.removeEventListener('error', onError);
-            res();
-          };
-          
-          const onError = (e: ErrorEvent) => {
-            sound.removeEventListener('canplaythrough', onLoaded);
-            sound.removeEventListener('error', onError);
-            rej(new Error(`Failed to load sound: ${src}`));
-          };
-          
-          sound.addEventListener('canplaythrough', onLoaded, { once: true });
-          sound.addEventListener('error', onError, { once: true });
-          sound.src = src;
-          sound.load();
-        });
-      };
-      
-      // Start with just loading essential sounds
-      // Background music will be lazy-loaded when play is called
-      Promise.all([
-        loadSound(hitSound, '/sounds/hit.mp3'),
-        loadSound(successSound, '/sounds/success.mp3')
-      ])
-        .then(() => {
-          console.log('All sound effects loaded successfully');
-          resolve({
-            backgroundMusic,
-            hitSound,
-            successSound
-          });
-        })
-        .catch((error) => {
-          console.error('Failed to load sound effects:', error);
-          resolve({
-            backgroundMusic: new Audio(),
-            hitSound: new Audio(),
-            successSound: new Audio()
-          }); // Resolve with empty sounds to prevent app from crashing
-        });
-    } catch (error) {
-      console.error('Error setting up sound effects:', error);
-      // Don't reject - provide fallback audio instead
-      resolve({
-        backgroundMusic: new Audio(),
-        hitSound: new Audio(),
-        successSound: new Audio()
-      });
-    }
-  });
+  // Set sources but don't load them yet - they'll load when needed
+  backgroundMusic.src = '/sounds/background.mp3';
+  hitSound.src = '/sounds/hit.mp3';
+  successSound.src = '/sounds/success.mp3';
+  
+  // Skip the loading wait - we'll load sounds on demand instead of upfront
+  console.log('Sound effects ready (will load when played)');
+  
+  return {
+    backgroundMusic,
+    hitSound,
+    successSound
+  };
 }
 
 /**
