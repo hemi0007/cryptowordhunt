@@ -135,9 +135,7 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({
     }
 
     // Game is complete when all words are found
-    if (foundWords.length > 0 && foundWords.length === placedWords.length && !roundScoreCalculated && placedWords.length > 0) {
-      console.log(`All words found! ${foundWords.length}/${placedWords.length} - Pausing game until user continues`);
-      
+    if (foundWords.length > 0 && foundWords.length === placedWords.length && !roundScoreCalculated) {
       // Add bonus for remaining time
       const timeBonus = timeRemaining * 10;
       const roundBonus = roundNumber * 50; // Extra bonus for higher rounds
@@ -148,11 +146,8 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({
 
       // Update score once
       setScore(finalScore);
-      
-      // Send the final score to parent
-      onStatsUpdate(finalScore, foundWords.length, placedWords.length);
 
-      // Explicitly pause the timer when round completes and WAIT for user to continue
+      // Explicitly pause the timer when round completes - this is critical!
       if (onTimePause) {
         onTimePause(true);
       }

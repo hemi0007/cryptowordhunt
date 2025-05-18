@@ -129,6 +129,9 @@ const GamePage = () => {
     setShowModal(false);
     setRoundComplete(false);
     
+    // Set timer pause state before updating the timer value
+    setTimerPaused(false);
+    
     // Set fresh timer for the new round (base time + bonus for higher rounds)
     const baseTime = 60; // One minute base time
     const roundBonus = Math.min(10 + (currentRound * 5), 30); // Cap at 30 seconds
@@ -137,20 +140,13 @@ const GamePage = () => {
     // Set the timer with the new value
     setTimer(newTime);
     
-    // Increment round number
-    const nextRound = currentRound + 1;
-    setRoundNumber(nextRound);
+    // Increment round number immediately
+    setRoundNumber(prev => prev + 1);
     
     // Force component to re-render with new key
     setGameKey(Date.now());
     
-    console.log(`Starting round ${nextRound} with ${newTime} seconds`);
-    
-    // Important: Unpause the timer AFTER all state updates
-    // Short delay to ensure all state is updated properly
-    setTimeout(() => {
-      setTimerPaused(false);
-    }, 200);
+    console.log(`Starting round ${currentRound + 1} with ${newTime} seconds`);
   };
 
   // Handle timer pause/resume from power-ups and other power-up states
@@ -238,14 +234,12 @@ const GamePage = () => {
         />
       </motion.div>
 
-      {/* End Game Modal - Shown at game end or when time runs out */}
+      {/* End Game Modal - Shown at game end or when round complete */}
       {((phase === "ended" || timer === 0) && !roundComplete) && (
         <EndGameModal 
           score={score} 
           foundWords={foundWordsCount} 
-          totalWords={totalWords}
-          onContinueNextRound={handleContinueNextRound}
-          roundComplete={true}
+          totalWords={totalWords} 
         />
       )}
 
