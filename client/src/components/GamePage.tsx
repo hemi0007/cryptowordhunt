@@ -78,10 +78,18 @@ const GamePage = () => {
     }
   };
 
-  const handleTimePause = (isPaused: boolean, options?: { addTime?: number }) => {
+  const handleTimerPause = (isPaused: boolean, powerUpStates?: any) => {
+    console.log(`Timer pause state changed to: ${isPaused ? "PAUSED" : "RUNNING"}`);
     setTimerPaused(isPaused);
-    if (options?.addTime) {
-      setTimer(prev => prev + options.addTime);
+
+    // Handle adding time for FUD Shield
+    if (powerUpStates?.addTime) {
+      setTimer(prevTime => prevTime + powerUpStates.addTime);
+    }
+
+    // Update mining boost state if provided
+    if (powerUpStates && typeof powerUpStates.miningActive !== 'undefined') {
+      setMiningActive(powerUpStates.miningActive);
     }
   };
 
