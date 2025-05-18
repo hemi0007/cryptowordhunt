@@ -8,10 +8,18 @@ import { CRYPTO_WORDS } from "../lib/constants";
 interface WordSearchGameProps {
   onStatsUpdate: (score: number, foundWordsCount: number, totalWords: number) => void;
   timeRemaining: number;
-  onTimePause?: (isPaused: boolean) => void;
+  onTimePause?: (isPaused: boolean, powerUpStates?: any) => void;
+  roundNumber?: number;
+  getRandomWords?: (count: number) => string[];
 }
 
-const WordSearchGame: React.FC<WordSearchGameProps> = ({ onStatsUpdate, timeRemaining, onTimePause }) => {
+const WordSearchGame: React.FC<WordSearchGameProps> = ({ 
+  onStatsUpdate, 
+  timeRemaining, 
+  onTimePause,
+  roundNumber = 1,
+  getRandomWords 
+}) => {
   const { end } = useGame();
   const { playHit, playSuccess } = useAudio();
   const { 
@@ -54,10 +62,39 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({ onStatsUpdate, timeRema
   
   const gridRef = useRef<HTMLDivElement>(null);
   
-  // Initialize game on component mount
+  // Initialize game on component mount or when round changes
   useEffect(() => {
-    initializeGame(10, CRYPTO_WORDS);
-  }, [initializeGame]);
+    // Determine word count based on round number (increasing difficulty)
+    const baseWordCount = 8;
+    const wordCount = Math.min(baseWordCount + Math.floor(roundNumber / 2), 15);
+    
+    // Get words for this round
+    let chosenWords;
+    if (getRandomWords) {
+      // Use the provided function to get words (avoids repeating words across rounds)
+      chosenWords = getRandomWords(wordCount);
+    } else {
+      // Fallback to random selection from all words
+      const shuffledWords = [...CRYPTO_WORDS].sort(() => Math.random() - 0.5);
+      chosenWords = shuffledWords.slice(0, wordCount);
+    }
+    
+    // Determine grid size based on round number (increasing difficulty)
+    const baseGridSize = 10;
+    const gridSize = Math.min(baseGridSize + Math.floor(roundNumber / 3), 15);
+    
+    console.log(`Initializing Round ${roundNumber} with ${chosenWords.length} words on ${gridSize}x${gridSize} grid`);
+    
+    // Initialize game with the chosen words and grid size
+    initializeGame(gridSize, chosenWords);
+    
+    // Reset power-up states for new round
+    setBoostActive(false);
+    setVisionActive(false);
+    setMiningActive(false);
+    setFudShieldActive(false);
+    
+  }, [initializeGame, roundNumber, getRandomWords]);
   
   // Update parent about mining boost status for visual feedback
   useEffect(() => {
@@ -74,15 +111,19 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({ onStatsUpdate, timeRema
     
     // Game is complete when all words are found
     if (foundWords.length > 0 && foundWords.length === placedWords.length) {
-      const finalScore = score + timeRemaining * 10; // Bonus for remaining time
+      // Add bonus for remaining time
+      const timeBonus = timeRemaining * 10;
+      const roundBonus = roundNumber * 50; // Extra bonus for higher rounds
+      const finalScore = score + timeBonus + roundBonus;
+      
       setScore(finalScore);
       onStatsUpdate(finalScore, foundWords.length, placedWords.length);
       
-      // End the game
-      end();
+      // Don't end the game - let parent component handle continuing to next round
+      // end();
       playSuccess();
     }
-  }, [foundWords.length, placedWords.length, score, timeRemaining, onStatsUpdate, end, playSuccess]);
+  }, [foundWords.length, placedWords.length, score, timeRemaining, roundNumber, onStatsUpdate, playSuccess]);
   
   // Time's up
   useEffect(() => {

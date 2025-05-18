@@ -151,13 +151,24 @@ const GamePage = () => {
     >
       {/* Game Header */}
       <header className="w-full flex flex-col md:flex-row justify-between items-center mb-6">
-        <motion.h1 
-          className="text-3xl font-bold neon-text"
-          initial={{ x: -50 }}
-          animate={{ x: 0 }}
-        >
-          ChainWords
-        </motion.h1>
+        <div className="flex flex-col items-center md:items-start">
+          <motion.h1 
+            className="text-3xl font-bold neon-text"
+            initial={{ x: -50 }}
+            animate={{ x: 0 }}
+          >
+            ChainWords
+          </motion.h1>
+          {roundNumber > 1 && (
+            <motion.div 
+              className="text-sm text-primary/80 mt-1"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              Round {roundNumber}
+            </motion.div>
+          )}
+        </div>
 
         {/* Game Stats */}
         <motion.div 
@@ -192,18 +203,32 @@ const GamePage = () => {
         transition={{ delay: 0.3, type: "spring" }}
       >
         <WordSearchGame 
+          key={gameKey} // Force re-render on new round
           onStatsUpdate={handleStatsUpdate} 
           timeRemaining={timer}
           onTimePause={handleTimerPause}
+          roundNumber={roundNumber}
+          getRandomWords={getRandomWordsForRound}
         />
       </motion.div>
 
-      {/* End Game Modal */}
-      {(phase === "ended" || timer === 0) && (
+      {/* End Game Modal - Shown at game end or when round complete */}
+      {((phase === "ended" || timer === 0) && !roundComplete) && (
         <EndGameModal 
           score={score} 
           foundWords={foundWordsCount} 
           totalWords={totalWords} 
+        />
+      )}
+      
+      {/* Round Complete Modal - Only shown when round is complete but game not ended */}
+      {showModal && roundComplete && phase === "playing" && (
+        <EndGameModal 
+          score={score} 
+          foundWords={foundWordsCount} 
+          totalWords={totalWords}
+          onContinueNextRound={handleContinueNextRound}
+          roundComplete={true}
         />
       )}
     </motion.div>
