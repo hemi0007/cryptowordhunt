@@ -132,6 +132,10 @@ const GamePage = () => {
 
     // Reset round completion status
     setRoundComplete(false);
+    setShowModal(false); // Close the modal
+
+    // Force WordSearchGame to reinitialize with new words
+    setGameKey(Date.now());
 
     // Reset timer pause state
     setTimerPaused(false);
