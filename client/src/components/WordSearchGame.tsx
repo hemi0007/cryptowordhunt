@@ -136,8 +136,8 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({
     // Game is complete when all words are found
     if (foundWords.length > 0 && foundWords.length === placedWords.length && !roundScoreCalculated) {
       // Add bonus for remaining time
-      const timeBonus = timeRemaining * 10;
-      const roundBonus = roundNumber * 50; // Extra bonus for higher rounds
+      const timeBonus = typeof timeRemaining === 'number' ? timeRemaining * 10 : 0;
+      const roundBonus = typeof roundNumber === 'number' ? roundNumber * 50 : 0; // Extra bonus for higher rounds
       const finalScore = score + timeBonus + roundBonus;
 
       // Set flag to prevent multiple updates
