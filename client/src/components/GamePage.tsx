@@ -114,12 +114,15 @@ const GamePage = () => {
 
   // Handle continuing to the next round
   const handleContinueNextRound = () => {
+    // Calculate time bonus from previous round (this is already done in WordSearchGame)
+    
     // Increment round number
     setRoundNumber(prev => prev + 1);
     
-    // Add bonus time for next round (more time for higher rounds)
-    const bonusTime = Math.min(10 + (roundNumber * 5), 30); // Cap at 30 seconds
-    setTimer(prev => prev + bonusTime);
+    // Set fresh timer for the new round (base time + bonus for higher rounds)
+    const baseTime = 60;
+    const roundBonus = Math.min(10 + (roundNumber * 5), 30); // Cap at 30 seconds
+    setTimer(baseTime + roundBonus);
     
     // Reset round completion status
     setRoundComplete(false);
@@ -130,6 +133,8 @@ const GamePage = () => {
     
     // Reset timer pause state
     setTimerPaused(false);
+    
+    console.log(`Starting round ${roundNumber + 1} with ${baseTime + roundBonus} seconds`);
   };
 
   // Handle timer pause/resume from power-ups and other power-up states

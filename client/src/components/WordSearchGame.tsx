@@ -138,12 +138,20 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({
       
       // Update score once
       setScore(finalScore);
+      
+      // Explicitly pause the timer when round completes
+      if (onTimePause) {
+        onTimePause(true);
+      }
+      
+      // Update stats with final score that includes time bonus
+      console.log(`Round complete! Final score: ${finalScore} (includes ${timeBonus} time bonus + ${roundBonus} round bonus)`);
       onStatsUpdate(finalScore, foundWords.length, placedWords.length);
       
       // Play success sound once
       playSuccess();
     }
-  }, [foundWords.length, placedWords.length, score, timeRemaining, roundNumber, onStatsUpdate, playSuccess, roundScoreCalculated]);
+  }, [foundWords.length, placedWords.length, score, timeRemaining, roundNumber, onStatsUpdate, playSuccess, roundScoreCalculated, onTimePause]);
   
   // Reset the round score calculation flag when round changes
   useEffect(() => {
