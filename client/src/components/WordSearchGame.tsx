@@ -62,8 +62,19 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({
   
   const gridRef = useRef<HTMLDivElement>(null);
   
-  // Initialize game on component mount or when round changes
+  // Reference to track if we already initialized this round
+  const initializedRoundRef = useRef(0);
+  
+  // Initialize game ONLY on component mount or when round number changes
   useEffect(() => {
+    // Skip repeated initializations for the same round
+    if (initializedRoundRef.current === roundNumber) {
+      return;
+    }
+    
+    // Mark this round as initialized
+    initializedRoundRef.current = roundNumber;
+    
     // Determine word count based on round number (increasing difficulty)
     const baseWordCount = 8;
     const wordCount = Math.min(baseWordCount + Math.floor(roundNumber / 2), 15);

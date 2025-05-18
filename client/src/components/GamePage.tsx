@@ -97,13 +97,18 @@ const GamePage = () => {
     setFoundWordsCount(found);
     setTotalWords(total);
     
-    // Check if all words are found to trigger round completion
-    if (found === total) {
-      setRoundComplete(true);
-      setShowModal(true);
-      
-      // Pause the timer when round is complete
-      setTimerPaused(true);
+    // Only handle round completion if there are actual words found
+    // and we have a reasonable total (prevents initialization loops)
+    if (found === total && total > 0 && found > 0) {
+      // Prevent multiple round completion triggers
+      if (!roundComplete) {
+        console.log(`Round ${roundNumber} completed! Score: ${newScore}, Found: ${found}/${total}`);
+        setRoundComplete(true);
+        setShowModal(true);
+        
+        // Pause the timer when round is complete
+        setTimerPaused(true);
+      }
     }
   };
 
