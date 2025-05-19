@@ -329,6 +329,7 @@ function GamePage() {
           totalWords={totalWords}
           onContinueNextRound={roundNumber < 3 ? handleContinueNextRound : undefined}
           roundComplete={true}
+          finalRound={roundNumber >= 3}
         />
       )}
     </motion.div>

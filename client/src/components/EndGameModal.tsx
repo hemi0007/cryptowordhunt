@@ -12,15 +12,18 @@ interface EndGameModalProps {
   totalWords: number;
   onContinueNextRound?: () => void;
   roundComplete?: boolean;
+  finalRound?: boolean;
 }
 
-const EndGameModal: React.FC<EndGameModalProps> = ({ 
-  score, 
-  foundWords, 
-  totalWords,
-  onContinueNextRound,
-  roundComplete = false
-}) => {
+const EndGameModal: React.FC<EndGameModalProps> = (props) => { 
+  const { 
+    score, 
+    foundWords, 
+    totalWords,
+    onContinueNextRound,
+    roundComplete = false,
+    finalRound = false
+  } = props;
   const { restart } = useGame();
   const [isSuccess, setIsSuccess] = useState(false);
   const [view, setView] = useState<'result' | 'submitScore' | 'leaderboard'>('result');
@@ -136,12 +139,14 @@ const EndGameModal: React.FC<EndGameModalProps> = ({
             {/* Header with result text */}
             <div className={`p-6 ${isSuccess ? 'bg-[#00995e]/20' : 'bg-[#995e00]/20'}`}>
               <h2 className="text-3xl font-bold text-center mb-2 neon-text">
-                {isSuccess ? '🚀 Game Complete!' : '⏱️ Time\'s Up!'}
+                {props.finalRound ? '🏆 Final Round Complete!' : isSuccess ? '🚀 Round Complete!' : '⏱️ Time\'s Up!'}
               </h2>
               <p className="text-center text-white/70">
-                {isSuccess 
-                  ? 'Great job! You\'ve found enough crypto words.'
-                  : 'Keep practicing! The crypto market is volatile.'}
+                {props.finalRound
+                  ? 'Amazing work! You\'ve completed all rounds!'
+                  : isSuccess 
+                    ? 'Great job! You\'ve found enough crypto words.'
+                    : 'Keep practicing! The crypto market is volatile.'}
               </p>
             </div>
             
