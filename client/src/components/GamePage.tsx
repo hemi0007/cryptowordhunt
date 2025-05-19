@@ -129,17 +129,18 @@ function GamePage() {
     if (found === total && total > 0 && found > 0) {
       console.log(`Round ${roundNumber} completed! Found: ${found}/${total}`);
 
-      // If it's the final round (round 3)
-      if (roundNumber >= 3) {
+      // For round 3, only end when complete or time runs out
+      if (roundNumber >= 3 && found === total) {
         console.log("Final round completed! Ending game...");
-        // For the final round, end the game when all words are found
-        setRoundComplete(true);
-        setShowModal(true);
-        setModalDismissed(false);
-        setTimerPaused(true);
-        if (typeof end === "function") {
-          end();
-        }
+        setTimeout(() => {
+          setRoundComplete(true);
+          setShowModal(true);
+          setModalDismissed(false);
+          setTimerPaused(true);
+          if (typeof end === "function") {
+            end();
+          }
+        }, 100);
       } else {
         // Normal round completion for rounds 1-2
         setRoundComplete(true);
