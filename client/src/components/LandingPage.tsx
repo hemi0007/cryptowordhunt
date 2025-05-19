@@ -91,7 +91,7 @@ const LandingPage = () => {
       style={{
         backgroundImage: `url('/images/mainmenu.png')`,
         backgroundSize: 'cover',
-        backgroundPosition: 'right center',
+        backgroundPosition: 'left center',
         backgroundRepeat: 'no-repeat',
         backgroundAttachment: 'fixed',
       }}
