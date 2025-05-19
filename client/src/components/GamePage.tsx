@@ -4,6 +4,7 @@ import { useGame } from "../lib/stores/useGame";
 import { CRYPTO_WORDS } from "../lib/constants";
 import WordSearchGame from "./WordSearchGame";
 import EndGameModal from "./EndGameModal";
+import GameMenu from "./GameMenu";
 
 function GamePage() {
   // Get game phase from the store
@@ -186,6 +187,8 @@ function GamePage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
     >
+      {/* Hamburger Menu */}
+      <GameMenu />
       {/* Game Header */}
       <header className="w-full flex flex-col md:flex-row justify-between items-center mb-6">
         <div className="flex flex-col items-center md:items-start">
