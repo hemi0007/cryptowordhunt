@@ -83,10 +83,14 @@ const GameMenu = () => {
                       step={1}
                       className={`w-full ${isMuted ? "opacity-50" : ""}`}
                       onValueChange={(value) => {
-                        const newVolume = value[0] / 100;
-                        setLocalVolume(value[0]);
-                        setVolume(newVolume);
-                        console.log(`Volume changed to: ${newVolume}`);
+                        try {
+                          const newVolume = value[0] / 100;
+                          setLocalVolume(value[0]);
+                          setVolume(newVolume);
+                          console.log(`Volume changed to: ${newVolume}`);
+                        } catch (error) {
+                          console.error("Error changing volume:", error);
+                        }
                       }}
                     />
                   </div>
