@@ -70,7 +70,7 @@ const LandingPage = () => {
         
         {/* Play button */}
         <motion.div
-          className="mb-10 text-center"
+          className="mb-14 text-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7 }}
@@ -85,10 +85,8 @@ const LandingPage = () => {
           </motion.button>
         </motion.div>
         
-        {/* Footer */}
-        <footer className="py-4 text-center w-full text-white/80 text-sm mb-4">
-          <p>Not financial advice. Just pixelated fun.</p>
-        </footer>
+        {/* Spacer for bottom margin */}
+        <div className="mb-8"></div>
       </div>
     </motion.div>
   );
