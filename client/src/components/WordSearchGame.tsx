@@ -614,8 +614,17 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({
               return (
                 <motion.div 
                   key={`${rowIndex}-${colIndex}`}
-                  className={cellClass}
-                  style={cellStyle}
+                  className={`grid-cell flex items-center justify-center p-1 md:p-2 font-bold text-xs md:text-base border-[1px] border-muted cursor-pointer select-none rounded transition-colors`}
+                  style={{
+                    backgroundColor: isHighlighted ? currentHighlightColor :
+                                   foundWordInfo ? `hsl(${Math.min(120 + foundWordInfo.word.length * 15, 300)}, 70%, 40%)` :
+                                   isSelected ? '#4f46e5' : '',
+                    color: (isHighlighted || foundWordInfo || isSelected) ? 'white' : '',
+                    boxShadow: isHighlighted ? '0 0 8px rgba(255, 255, 255, 0.7)' :
+                               foundWordInfo ? '0 0 5px rgba(0, 0, 0, 0.3)' : 'none',
+                    fontWeight: foundWordInfo ? 'extra-bold' : 'bold',
+                    transform: (isSelected || isHighlighted) ? 'scale(1.05)' : 'scale(1)'
+                  }}
                   onMouseDown={() => handleCellStart(rowIndex, colIndex)}
                   onMouseEnter={() => handleCellMove(rowIndex, colIndex)}
                   onMouseUp={handleCellEnd}
