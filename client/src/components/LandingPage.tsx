@@ -62,14 +62,21 @@ const LandingPage = () => {
         </motion.p>
       </header>
 
-      {/* Empty space between header and play button */}
+      {/* Main menu image in the center */}
       <motion.div 
-        className="w-full max-w-5xl flex-grow"
+        className="w-full max-w-5xl flex-grow flex justify-center items-center"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
       >
-        {/* No content here intentionally to keep the page clean */}
+        <motion.img 
+          src="/images/mainmenu.png" 
+          alt="ChainWords game preview" 
+          className="w-full max-w-3xl rounded-xl shadow-lg border-2 border-foreground/20"
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.7 }}
+        />
       </motion.div>
       
       {/* Play button moved to bottom */}
