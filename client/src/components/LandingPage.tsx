@@ -107,12 +107,31 @@ const LandingPage = () => {
           </motion.h1>
         </header>
 
+        {/* Crypto Coins Image */}
+        <motion.div
+          className="w-full flex justify-center my-8"
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ 
+            type: "spring", 
+            stiffness: 260, 
+            damping: 20,
+            delay: 0.3
+          }}
+        >
+          <img 
+            src="/images/coins.png" 
+            alt="Cryptocurrency coins" 
+            className="w-3/4 md:w-1/2 lg:w-2/5 xl:w-1/3 max-w-2xl drop-shadow-2xl"
+          />
+        </motion.div>
+
         {/* Spacer to push content apart */}
         <div className="flex-grow"></div>
         
         {/* Play button - moved even further down */}
         <motion.div
-          className="mb-4 text-center mt-64" 
+          className="mb-4 text-center mt-16" 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7 }}
