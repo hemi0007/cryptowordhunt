@@ -45,26 +45,18 @@ const LandingPage = () => {
       {/* Header Section */}
       <header className="w-full text-center mb-8">
         <motion.h1 
-          className="text-4xl md:text-6xl font-bold mb-4 neon-text neon-green"
+          className="text-4xl md:text-6xl font-bold mb-8 neon-text neon-green"
           initial={{ y: -50 }}
           animate={{ y: 0 }}
           transition={{ type: "spring", stiffness: 300, damping: 15 }}
         >
           ChainWords
         </motion.h1>
-        <motion.p 
-          className="text-xl md:text-2xl mb-8 neon-text neon-blue"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-        >
-          Hunt hidden gems and uncover your next crypto moonshot!
-        </motion.p>
       </header>
 
       {/* Main menu image in the center */}
       <motion.div 
-        className="w-full max-w-5xl flex-grow flex justify-center items-center"
+        className="w-full max-w-6xl flex-grow flex justify-center items-center"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
@@ -72,7 +64,7 @@ const LandingPage = () => {
         <motion.img 
           src="/images/mainmenu.png" 
           alt="ChainWords game preview" 
-          className="w-full max-w-3xl rounded-xl shadow-lg border-2 border-foreground/20"
+          className="w-full max-w-4xl rounded-xl shadow-lg border-2 border-foreground/20"
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.7 }}
