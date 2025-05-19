@@ -131,13 +131,28 @@ function GamePage() {
       console.log(`Round ${roundNumber} completed! Found: ${found}/${total}`);
       console.log(`Round state - complete: ${roundComplete}, modal: ${showModal}, dismissed: ${modalDismissed}`);
       
-      // Force a guaranteed modal display with a slight delay for stability
-      setTimeout(() => {
-        setRoundComplete(true);
-        setShowModal(true);
-        setModalDismissed(false); // Reset modal dismissed flag
-        setTimerPaused(true);
-      }, 100);
+      // For round 3, end the game instead of showing continue option
+      if (roundNumber >= 3) {
+        console.log("Final round completed! Ending game...");
+        setTimeout(() => {
+          setRoundComplete(true);
+          setShowModal(true);
+          setModalDismissed(false);
+          setTimerPaused(true);
+          // End the game after round 3
+          if (typeof end === "function") {
+            end();
+          }
+        }, 100);
+      } else {
+        // Normal round completion for rounds 1-2
+        setTimeout(() => {
+          setRoundComplete(true);
+          setShowModal(true);
+          setModalDismissed(false); // Reset modal dismissed flag
+          setTimerPaused(true);
+        }, 100);
+      }
 
       // Stop the timer
       if (intervalRef.current) {
