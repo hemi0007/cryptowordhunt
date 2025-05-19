@@ -10,7 +10,7 @@ import GameMenu from "./GameMenu";
 function GamePage() {
   // Get game phase from the store
   const { phase, end } = useGame();
-  
+
   // Track words used across rounds to avoid repetition - inside component body
   const usedWordsRef = useRef<Set<string>>(new Set());
 
@@ -64,8 +64,8 @@ function GamePage() {
             clearInterval(intervalRef.current);
           }
 
-          // End the game if round is not complete
-          if (!roundComplete && typeof end === "function") {
+          // End the game if time runs out, regardless of round number
+          if (typeof end === "function") {
             end();
           }
           return 0;
@@ -80,7 +80,7 @@ function GamePage() {
         clearInterval(intervalRef.current);
       }
     };
-  }, [phase, timerPaused, roundNumber, roundComplete, end]);
+  }, [phase, timerPaused, roundNumber, end]);
 
   // Format time as MM:SS
   const formatTime = (seconds: number): string => {
@@ -125,42 +125,33 @@ function GamePage() {
     // Update score
     setScore(roundScore);
 
-    // Enhanced round completion detection with guaranteed modal display
+    // Check for round completion condition
     if (found === total && total > 0 && found > 0) {
-      // Add detailed logging to troubleshoot modal issues
       console.log(`Round ${roundNumber} completed! Found: ${found}/${total}`);
-      console.log(`Round state - complete: ${roundComplete}, modal: ${showModal}, dismissed: ${modalDismissed}`);
-      
-      // For round 3, only show end game when timer runs out or all words found
+
+      // If it's the final round (round 3)
       if (roundNumber >= 3) {
-        if (found === total) {
-          console.log("Final round completed! Ending game...");
-          setTimeout(() => {
-            setRoundComplete(true);
-            setShowModal(true);
-            setModalDismissed(false);
-            setTimerPaused(true);
-            if (typeof end === "function") {
-              end();
-            }
-          }, 100);
+        console.log("Final round completed! Ending game...");
+        // For the final round, end the game when all words are found
+        setRoundComplete(true);
+        setShowModal(true);
+        setModalDismissed(false);
+        setTimerPaused(true);
+        if (typeof end === "function") {
+          end();
         }
-        // Don't pause timer unless words are found or time runs out
-        return;
       } else {
         // Normal round completion for rounds 1-2
-        setTimeout(() => {
-          setRoundComplete(true);
-          setShowModal(true);
-          setModalDismissed(false); // Reset modal dismissed flag
-          setTimerPaused(true);
-        }, 100);
-      }
+        setRoundComplete(true);
+        setShowModal(true);
+        setModalDismissed(false);
+        setTimerPaused(true);
 
-      // Stop the timer
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
+        // Stop the timer for intermediate rounds
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        }
       }
     }
   };
@@ -229,7 +220,7 @@ function GamePage() {
     console.log(
       `Timer pause state changed to: ${isPaused ? "PAUSED" : "RUNNING"}`,
     );
-    
+
     // Only update pause state if we're not at round completion
     if (!roundComplete || !showModal) {
       setTimerPaused(isPaused);
@@ -341,26 +332,29 @@ function GamePage() {
         />
       </motion.div>
 
-      {/* End Game Modal - Time ran out */}
-      {(phase === "ended" || timer === 0) && !roundComplete && (
+      {/* End Game Modal - Time ran out or game ended */}
+      {phase === "ended" && (
+        <EndGameModal
+          score={score}
+          foundWords={foundWordsCount}
+          totalWords={totalWords}
+          onContinueNextRound={
+            roundNumber < 3 ? handleContinueNextRound : undefined
+          }
+          roundComplete={true}
+          finalRound={roundNumber >= 3}
+        />
+      )}
+
+      {/* Round Complete Modal - For non-final rounds */}
+      {showModal && roundComplete && phase === "playing" && roundNumber < 3 && (
         <EndGameModal
           score={score}
           foundWords={foundWordsCount}
           totalWords={totalWords}
           onContinueNextRound={handleContinueNextRound}
           roundComplete={true}
-        />
-      )}
-
-      {/* Round Complete Modal */}
-      {showModal && roundComplete && phase === "playing" && (
-        <EndGameModal
-          score={score}
-          foundWords={foundWordsCount}
-          totalWords={totalWords}
-          onContinueNextRound={roundNumber < 3 ? handleContinueNextRound : undefined}
-          roundComplete={true}
-          finalRound={roundNumber >= 3}
+          finalRound={false}
         />
       )}
     </motion.div>
