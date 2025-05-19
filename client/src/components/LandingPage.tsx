@@ -4,7 +4,6 @@ import { Slider } from "./ui/slider";
 import { useAudio } from "../lib/stores/useAudio";
 import { useGame } from "../lib/stores/useGame";
 import IconGenerator from "./IconGenerator";
-import { HighScoreCard } from "./HighScoreCard";
 
 const LandingPage = () => {
   const { start } = useGame();
@@ -65,12 +64,11 @@ const LandingPage = () => {
 
       {/* Main Content */}
       <motion.div 
-        className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl"
+        className="w-full max-w-5xl"
         initial={{ y: 50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.5 }}
       >
-        {/* Left column - Call to action */}
         <div className="flex flex-col items-center justify-center">
           <div className="text-center mb-8">
             <h2 className="text-2xl font-bold mb-4 neon-text">
@@ -80,16 +78,6 @@ const LandingPage = () => {
               Prove your diamond hands 💎🙌 by finding all the crypto words before the timer runs out!
             </p>
           </div>
-          
-          {/* Images removed */}
-        </div>
-        
-        {/* Right column - Leaderboard */}
-        <div className="flex flex-col gap-6">
-          {/* High Score Card */}
-          <HighScoreCard />
-          
-          {/* Quote removed */}
         </div>
       </motion.div>
       
