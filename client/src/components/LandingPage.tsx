@@ -114,9 +114,9 @@ const LandingPage = () => {
         {/* Spacer to push content apart */}
         <div className="flex-grow"></div>
         
-        {/* Play button - moved down 40% total */}
+        {/* Play button - moved even further down */}
         <motion.div
-          className="mb-4 text-center mt-48"
+          className="mb-4 text-center mt-64" 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7 }}
