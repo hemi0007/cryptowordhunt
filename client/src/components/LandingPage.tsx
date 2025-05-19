@@ -48,8 +48,7 @@ const LandingPage = () => {
         backgroundRepeat: 'no-repeat',
       }}
     >
-      {/* Dark overlay to improve text visibility */}
-      <div className="absolute inset-0 bg-black/50 z-0"></div>
+      {/* No overlay - removed */}
       
       {/* Content container - sits above the background */}
       <div className="container mx-auto px-4 py-8 z-10 flex flex-col items-center justify-between min-h-screen">
@@ -68,9 +67,9 @@ const LandingPage = () => {
         {/* Spacer to push content apart */}
         <div className="flex-grow"></div>
         
-        {/* Play button */}
+        {/* Play button - moved down 20% */}
         <motion.div
-          className="mb-14 text-center"
+          className="mb-4 text-center mt-20"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7 }}
