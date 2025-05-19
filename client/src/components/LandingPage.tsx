@@ -92,10 +92,7 @@ const LandingPage = () => {
             {/* Sound settings moved to game interface */}
           </div>
           
-          <div className="mt-4 flex gap-8 justify-center">
-            <img src="/images/bitcoin.png" alt="Bitcoin" width={120} height={120} className="object-contain" />
-            <img src="/images/rocket.png" alt="Rocket" width={120} height={120} className="object-contain" />
-          </div>
+          {/* Images removed */}
         </div>
         
         {/* Right column - Leaderboard */}
@@ -103,12 +100,7 @@ const LandingPage = () => {
           {/* High Score Card */}
           <HighScoreCard />
           
-          {/* Quote Card */}
-          <div className="bg-secondary rounded-xl p-4 neon-border">
-            <p className="italic text-center text-sm">
-              "YOLOed my way through that puzzle—feeling like a giga-chad!" - @CryptoBro
-            </p>
-          </div>
+          {/* Quote removed */}
         </div>
       </motion.div>
       
