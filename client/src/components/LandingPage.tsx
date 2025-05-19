@@ -125,7 +125,7 @@ const LandingPage = () => {
           <img 
             src="/images/coins.png" 
             alt="Cryptocurrency coins" 
-            className="w-3/4 md:w-1/2 lg:w-2/5 xl:w-1/3 max-w-2xl drop-shadow-2xl"
+            className="w-4/5 md:w-3/5 lg:w-1/2 xl:w-2/5 max-w-3xl drop-shadow-2xl"
           />
         </motion.div>
 
