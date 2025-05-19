@@ -1,3 +1,5 @@
+// Track words used across rounds to avoid repetition
+const usedWordsRef = useRef<Set<string>>(new Set());
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useGame } from "../lib/stores/useGame";
@@ -9,7 +11,7 @@ import GameMenu from "./GameMenu";
 function GamePage() {
   // Get game phase from the store
   const { phase, end } = useGame();
-  
+
   // Game state
   const [timer, setTimer] = useState(300); // 5 minutes = 300 seconds
   const [score, setScore] = useState(0);
@@ -21,12 +23,17 @@ function GamePage() {
   const [showModal, setShowModal] = useState(false);
   const [roundComplete, setRoundComplete] = useState(false);
   const [gameKey, setGameKey] = useState(Date.now());
-  
+
   // Reference to timer interval
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  
-  // Track words used across rounds to avoid repetition
-  const usedWordsRef = useRef<Set<string>>(new Set());
+
+  // New state to track modal dismissal
+  const [modalDismissed, setModalDismissed] = useState(false);
+
+  // Reset modal dismissed state when round changes
+  useEffect(() => {
+    setModalDismissed(false);
+  }, [roundNumber]);
 
   // Handle timer countdown
   useEffect(() => {
@@ -40,6 +47,12 @@ function GamePage() {
       clearInterval(intervalRef.current);
     }
 
+    // Double check that modal is hidden when timer starts
+    if (roundNumber > 1) {
+      setShowModal(false);
+      setModalDismissed(true);
+    }
+
     // Set up new timer
     intervalRef.current = setInterval(() => {
       setTimer((prev) => {
@@ -48,9 +61,9 @@ function GamePage() {
           if (intervalRef.current) {
             clearInterval(intervalRef.current);
           }
-          
+
           // End the game if round is not complete
-          if (!roundComplete && typeof end === 'function') {
+          if (!roundComplete && typeof end === "function") {
             end();
           }
           return 0;
@@ -77,7 +90,7 @@ function GamePage() {
   // Helper function to get a random set of words for the next round
   const getRandomWordsForRound = (count: number): string[] => {
     const availableWords = CRYPTO_WORDS.filter(
-      (word) => !usedWordsRef.current.has(word)
+      (word) => !usedWordsRef.current.has(word),
     );
 
     // If we've used most words, reset the used words to allow reuse
@@ -100,13 +113,13 @@ function GamePage() {
   // Update score and found words count from game component
   const handleStatsUpdate = (
     roundScore: number,
-    found: number, 
-    total: number
+    found: number,
+    total: number,
   ): void => {
     // Always update word counts
     setFoundWordsCount(found);
     setTotalWords(total);
-    
+
     // Update score
     setScore(roundScore);
 
@@ -115,6 +128,7 @@ function GamePage() {
       console.log(`Round ${roundNumber} completed! Found: ${found}/${total}`);
       setRoundComplete(true);
       setShowModal(true);
+      setModalDismissed(false); // Reset modal dismissed flag
       setTimerPaused(true);
 
       // Stop the timer
@@ -125,10 +139,22 @@ function GamePage() {
     }
   };
 
+  // Get base time for a specific round
+  const getBaseTimeForRound = (round: number): number => {
+    // Base time increases with round number
+    const baseTime = 300; // 5 minutes base
+    const additionalTime = Math.min(10 + (round - 1) * 5, 30); // Cap at 30 seconds additional
+    return baseTime + additionalTime;
+  };
+
   // Handle continuing to the next round
   const handleContinueNextRound = () => {
-    // Store current round before incrementing
+    // Store current round number before updating
     const currentRound = roundNumber;
+
+    // CRITICAL: Explicitly hide modal first
+    setShowModal(false);
+    setModalDismissed(true);
 
     // Stop any existing timer
     if (intervalRef.current) {
@@ -136,38 +162,47 @@ function GamePage() {
       intervalRef.current = null;
     }
 
-    // Reset round state
-    setShowModal(false);
+    // Ensure round is marked as not complete
     setRoundComplete(false);
+
+    // Important: Set timer to paused state during transition
+    setTimerPaused(true);
+
+    // Reset all round-specific state
     setFoundWordsCount(0);
     setTotalWords(0);
 
-    // Calculate new time for next round
-    const baseTime = 300; // 5 minutes
-    const roundBonus = Math.min(10 + (currentRound * 5), 30);
-    const newTime = baseTime + roundBonus;
-    
-    // Set new timer value and increment round
+    // Calculate new time for next round BEFORE updating round number
+    const newTime = getBaseTimeForRound(currentRound + 1);
+
+    // First update the timer
     setTimer(newTime);
-    setRoundNumber(currentRound + 1);
-    
-    // Force WordSearchGame to re-render
-    setGameKey(Date.now());
-    
-    console.log(`Starting round ${currentRound + 1} with ${newTime} seconds`);
-    
-    // Unpause timer after slight delay to ensure state updates
+
+    console.log("Modal hidden, round state reset, preparing next round");
+
+    // Then after a small delay, update round number and gameKey
     setTimeout(() => {
-      setTimerPaused(false);
-    }, 200);
+      console.log(`Starting round ${currentRound + 1} with ${newTime} seconds`);
+      setRoundNumber(currentRound + 1);
+
+      // Force WordSearchGame to re-render with a new key
+      setGameKey(Date.now());
+
+      // Important: Unpause timer AFTER the game has fully rendered
+      setTimeout(() => {
+        // Double check modal is hidden before unpausing
+        setShowModal(false);
+        setTimerPaused(false);
+        console.log("Timer unpaused, round fully initialized");
+      }, 500); // Longer delay to ensure game is fully initialized
+    }, 100);
   };
 
   // Handle timer pause/resume and power-ups
-  const handleTimerPause = (
-    isPaused: boolean, 
-    powerUpStates?: any
-  ): void => {
-    console.log(`Timer pause state changed to: ${isPaused ? "PAUSED" : "RUNNING"}`);
+  const handleTimerPause = (isPaused: boolean, powerUpStates?: any): void => {
+    console.log(
+      `Timer pause state changed to: ${isPaused ? "PAUSED" : "RUNNING"}`,
+    );
     setTimerPaused(isPaused);
 
     // Handle adding time for FUD Shield
@@ -243,10 +278,10 @@ function GamePage() {
             </div>
             <div
               className={`text-xl font-mono timer-value ${
-                timerPaused 
-                  ? "text-amber-500" 
-                  : timer <= 10 
-                    ? "text-red-500" 
+                timerPaused
+                  ? "text-amber-500"
+                  : timer <= 10
+                    ? "text-red-500"
                     : "neon-blue"
               }`}
             >
