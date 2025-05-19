@@ -4,6 +4,7 @@ import { Slider } from "./ui/slider";
 import { useAudio } from "../lib/stores/useAudio";
 import { useGame } from "../lib/stores/useGame";
 import IconGenerator from "./IconGenerator";
+import MatrixBackground from "./MatrixBackground";
 
 const LandingPage = () => {
   const { start } = useGame();
@@ -88,15 +89,9 @@ const LandingPage = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       className="min-h-screen flex flex-col items-center justify-between relative overflow-hidden"
-      style={{
-        backgroundImage: `url('/images/mainmenu.png')`,
-        backgroundSize: 'cover',
-        backgroundPosition: '30% center',
-        backgroundRepeat: 'no-repeat',
-        backgroundAttachment: 'fixed',
-      }}
     >
-      {/* No overlay - removed */}
+      {/* Animated Matrix Background */}
+      <MatrixBackground />
       
       {/* Content container - sits above the background */}
       <div className="container mx-auto px-4 py-8 z-10 flex flex-col items-center justify-between min-h-screen">
