@@ -235,8 +235,19 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({
     if (result) {
       // Word found
       playSuccess();
-      // Apply score multiplier if mining boost is active
-      const wordScore = result.word.length * 10 * scoreMultiplier;
+      // Enhanced scoring system with length and complexity bonuses
+      const baseScore = result.word.length * 10;
+      // Bonus for words longer than 5 letters
+      const lengthBonus = result.word.length > 5 ? (result.word.length - 5) * 5 : 0;
+      // Bonus for rare letters (Q, X, Z, J)
+      const rareLetterBonus = result.word.split('').reduce((bonus, letter) => {
+        return bonus + (['Q', 'X', 'Z', 'J'].includes(letter.toUpperCase()) ? 5 : 0);
+      }, 0);
+      // Apply multiplier to all score components
+      const wordScore = (baseScore + lengthBonus + rareLetterBonus) * scoreMultiplier;
+      
+      console.log(`Word found: ${result.word} - Score: ${wordScore} (Base: ${baseScore}, Length bonus: ${lengthBonus}, Rare letter bonus: ${rareLetterBonus}, Multiplier: ${scoreMultiplier}x)`);
+      
       setScore(prevScore => prevScore + wordScore);
     } else {
       // Word not found
@@ -250,36 +261,77 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({
     resetSelection();
   };
 
-  // Handle Boost power-up
+  // Enhanced Boost power-up - smarter hint system
   const handleBoost = () => {
     // Check if already used
     if (boostUsed) return;
 
-    // Find a random word that hasn't been found yet
-    const unsolvedWords = placedWords.filter(word => !foundWords.includes(word));
+    // Find unsolved words, prioritizing longer words for better gameplay
+    const unsolvedWords = placedWords
+      .filter(word => !foundWords.includes(word))
+      .sort((a, b) => b.length - a.length); // Prioritize longer words for hints
 
     if (unsolvedWords.length > 0) {
-      const randomWord = unsolvedWords[Math.floor(Math.random() * unsolvedWords.length)];
+      // Choose a word - preference given to longer words (80% chance for top half of list)
+      const useTopHalf = Math.random() < 0.8;
+      const targetPool = useTopHalf 
+        ? unsolvedWords.slice(0, Math.ceil(unsolvedWords.length / 2)) 
+        : unsolvedWords;
+      const randomWord = targetPool[Math.floor(Math.random() * targetPool.length)];
       const wordPath = wordPositions[randomWord];
 
       if (wordPath) {
         setBoostActive(true);
         setBoostUsed(true); // Mark as used (one-time use)
-        console.log("Boost activated - showing hint for a word");
+        console.log(`Boost activated - showing hint for word: ${randomWord}`);
 
-        // Highlight a portion of the word
+        // Smart hint system - show either the start or middle of the word
         const pathLength = wordPath.length;
-        const hintCells = wordPath.slice(0, Math.min(3, Math.ceil(pathLength / 3)));
+        const hintType = Math.random() < 0.5 ? 'start' : 'middle';
+        
+        let hintCells;
+        if (hintType === 'start') {
+          // Show the beginning of the word (first ~40%)
+          const hintLength = Math.max(2, Math.ceil(pathLength * 0.4));
+          hintCells = wordPath.slice(0, hintLength);
+          console.log(`Showing ${hintLength} starting letters of "${randomWord}"`);
+        } else {
+          // Show the middle portion of the word
+          const startIndex = Math.floor(pathLength * 0.3);
+          const hintLength = Math.max(2, Math.ceil(pathLength * 0.4));
+          hintCells = wordPath.slice(startIndex, startIndex + hintLength);
+          console.log(`Showing ${hintLength} middle letters of "${randomWord}"`);
+        }
 
-        // Flash the hint for a few seconds
-        highlightPath(hintCells, '#FFC107');
-        playHit(); // Play sound for feedback
+        // Animated hint effect - pulsing highlight
+        const flashTimes = 3;
+        let flashCount = 0;
+        
+        const flashInterval = setInterval(() => {
+          if (flashCount < flashTimes * 2) {
+            if (flashCount % 2 === 0) {
+              // Flash on with bright color
+              highlightPath(hintCells, '#FFC107');
+              playHit(); // Play sound for feedback
+            } else {
+              // Flash off (reset)
+              resetSelection();
+            }
+            flashCount++;
+          } else {
+            clearInterval(flashInterval);
+            setBoostActive(false);
+            resetSelection();
+            console.log("Boost hint ended");
+          }
+        }, 300);
 
+        // Safety timeout to ensure everything is reset
         setTimeout(() => {
+          clearInterval(flashInterval);
           setBoostActive(false);
           resetSelection();
-          console.log("Boost hint ended");
-        }, 2000);
+        }, 3000);
 
         // Set cooldown for UI feedback
         setBoostCooldown(true);
@@ -287,7 +339,7 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({
     }
   };
 
-  // Handle Diamond Vision power-up (reveal all words briefly)
+  // Handle Diamond Vision power-up (reveal all words briefly) - Improved version
   const handleVision = () => {
     // Check if already used
     if (visionUsed) return;
@@ -301,49 +353,80 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({
     const unsolvedWords = placedWords.filter(word => !foundWords.includes(word));
     console.log(`Revealing ${unsolvedWords.length} unsolved words`);
 
-    // This is important: The highlightPath function adds to the currentHighlight array
-    // which is used in the grid cell rendering to show highlights
-    for (const word of unsolvedWords) {
-      const wordPath = wordPositions[word];
-      if (wordPath) {
-        highlightPath(wordPath, '#8A2BE2');
+    // Enhanced vision effect - progressive reveal of word paths
+    let revealIndex = 0;
+    const revealInterval = setInterval(() => {
+      if (revealIndex < unsolvedWords.length) {
+        const word = unsolvedWords[revealIndex];
+        const wordPath = wordPositions[word];
+        if (wordPath) {
+          // Give each word a slightly different highlight color for better visibility
+          const colors = ['#8A2BE2', '#9932CC', '#9400D3', '#8B008B', '#800080'];
+          const color = colors[revealIndex % colors.length];
+          highlightPath(wordPath, color);
+          playHit(); // Play a subtle sound for each word reveal
+        }
+        revealIndex++;
+      } else {
+        clearInterval(revealInterval);
       }
-    }
+    }, 300); // Stagger the reveals for a more dynamic effect
 
-    // Turn off after 3 seconds
+    // Turn off after 4 seconds (slightly longer for better gameplay)
     setTimeout(() => {
       setVisionActive(false);
       resetSelection();
+      clearInterval(revealInterval); // Ensure interval is cleared
       console.log("Diamond Vision deactivated");
-    }, 3000);
+    }, 4000);
 
     // Set cooldown for UI feedback
     setVisionCooldown(true);
   };
 
-  // Handle Mining Boost power-up (increases score multiplier)
+  // Handle Mining Boost power-up (increases score multiplier) - Enhanced version
   const handleMining = () => {
     // Check if already used
     if (miningUsed) return;
 
     setMiningActive(true);
     setMiningUsed(true); // Mark as used (one-time use)
-    // Set score multiplier to 2x
-    setScoreMultiplier(2);
-    console.log("Mining Boost activated - 2x score multiplier enabled (one-time use)");
-
-    // Create visual feedback in the parent component via onTimePause hack
+    
+    // Enhanced score multiplier - progressive increase for more excitement
+    const multiplierSteps = [1.5, 2, 2.5, 3];
+    let currentStep = 0;
+    
+    // Start with initial multiplier
+    setScoreMultiplier(multiplierSteps[0]);
+    console.log(`Mining Boost activated - ${multiplierSteps[0]}x score multiplier enabled (one-time use)`);
+    playSuccess(); // Play success sound
+    
+    // Create visual feedback in the parent component
     if (onTimePause) {
       // We're using onTimePause as a generic state updater
       // @ts-ignore - This is intentional to pass along mining state
       onTimePause(false, { miningActive: true });
     }
-
+    
+    // Progressive multiplier increase at intervals
+    const multiplierInterval = setInterval(() => {
+      currentStep++;
+      if (currentStep < multiplierSteps.length) {
+        setScoreMultiplier(multiplierSteps[currentStep]);
+        console.log(`Mining Boost increased - ${multiplierSteps[currentStep]}x score multiplier`);
+        playHit(); // Play sound for feedback on multiplier increase
+      } else {
+        clearInterval(multiplierInterval);
+      }
+    }, 7500); // Every 7.5 seconds, increase multiplier
+    
     // Turn off after 30 seconds
     setTimeout(() => {
       setMiningActive(false);
       setScoreMultiplier(1);
+      clearInterval(multiplierInterval); // Ensure interval is cleared
       console.log("Mining Boost deactivated - score multiplier reset to 1x");
+      playHit(); // Play sound for feedback
 
       // Update parent component
       if (onTimePause) {
