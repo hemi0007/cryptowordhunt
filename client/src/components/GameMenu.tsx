@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAudio } from "../lib/stores/useAudio";
@@ -86,24 +86,37 @@ const GameMenu = () => {
                     >
                       {isMuted ? "Unmute 🔇" : "Mute 🔊"}
                     </Button>
-                    <Slider
-                      disabled={isMuted}
-                      defaultValue={[localVolume]}
-                      value={[localVolume]}
-                      max={100}
-                      step={1}
-                      className={`w-full ${isMuted ? "opacity-50" : ""}`}
-                      onValueChange={(value) => {
-                        try {
-                          const newVolume = value[0] / 100;
-                          setLocalVolume(value[0]);
-                          setVolume(newVolume);
-                          console.log(`Volume changed to: ${newVolume}`);
-                        } catch (error) {
-                          console.error("Error changing volume:", error);
-                        }
-                      }}
-                    />
+                    
+                    {/* Simple volume buttons instead of slider */}
+                    <div className="flex items-center gap-2 flex-1 justify-between">
+                      <div className="text-sm">Volume: {Math.round(localVolume)}%</div>
+                      <div className="flex gap-1">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          disabled={isMuted || localVolume <= 0}
+                          onClick={() => {
+                            const newVolume = Math.max(0, localVolume - 10);
+                            setLocalVolume(newVolume);
+                            setVolume(newVolume / 100);
+                          }}
+                        >
+                          -
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          disabled={isMuted || localVolume >= 100}
+                          onClick={() => {
+                            const newVolume = Math.min(100, localVolume + 10);
+                            setLocalVolume(newVolume);
+                            setVolume(newVolume / 100);
+                          }}
+                        >
+                          +
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </CardContent>
