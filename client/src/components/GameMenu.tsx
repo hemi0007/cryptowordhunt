@@ -89,10 +89,11 @@ const GameMenu = () => {
                     <Slider
                       disabled={isMuted}
                       defaultValue={[localVolume]}
+                      value={[localVolume]}
                       max={100}
                       step={1}
                       className={`w-full ${isMuted ? "opacity-50" : ""}`}
-                      onValueCommit={(value) => {
+                      onValueChange={(value) => {
                         try {
                           const newVolume = value[0] / 100;
                           setLocalVolume(value[0]);
