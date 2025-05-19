@@ -54,9 +54,9 @@ const LandingPage = () => {
       {/* Content container - sits above the background */}
       <div className="container mx-auto px-4 py-8 z-10 flex flex-col items-center justify-between min-h-screen">
         {/* Header Section */}
-        <header className="w-full text-center mb-8 mt-12">
+        <header className="w-full text-center mb-8 mt-6">
           <motion.h1 
-            className="text-5xl md:text-7xl font-bold mb-8 neon-text neon-green drop-shadow-xl"
+            className="text-5xl md:text-7xl font-bold mb-4 neon-text neon-green drop-shadow-xl"
             initial={{ y: -50 }}
             animate={{ y: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 15 }}
@@ -70,7 +70,7 @@ const LandingPage = () => {
         
         {/* Play button */}
         <motion.div
-          className="mb-20 text-center"
+          className="mb-10 text-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7 }}
