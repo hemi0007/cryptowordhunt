@@ -79,17 +79,6 @@ const LandingPage = () => {
             <p className="mb-6">
               Prove your diamond hands 💎🙌 by finding all the crypto words before the timer runs out!
             </p>
-            
-            <motion.button
-              className="animated-gradient py-4 px-8 text-2xl font-bold rounded-lg neon-border"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={start}
-            >
-              PLAY NOW 🚀
-            </motion.button>
-            
-            {/* Sound settings moved to game interface */}
           </div>
           
           {/* Images removed */}
@@ -104,6 +93,22 @@ const LandingPage = () => {
         </div>
       </motion.div>
       
+      {/* Play button moved to bottom */}
+      <motion.div
+        className="mt-10 mb-10 text-center"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.7 }}
+      >
+        <motion.button
+          className="animated-gradient py-4 px-8 text-2xl font-bold rounded-lg neon-border"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={start}
+        >
+          PLAY NOW 🚀
+        </motion.button>
+      </motion.div>
       
       {/* Footer */}
       <footer className="mt-auto py-4 text-center w-full text-muted-foreground text-sm">
