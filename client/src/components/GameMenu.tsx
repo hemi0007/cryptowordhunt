@@ -35,7 +35,7 @@ const GameMenu = () => {
             transition={{ type: "spring", bounce: 0.1 }}
             className="fixed top-0 right-0 h-screen w-full max-w-xs sm:max-w-sm md:max-w-md"
           >
-            <Card className="h-full border-l border-r border-t-0 border-b-0 rounded-none bg-background shadow-xl overflow-auto">
+            <Card className="h-full border-l border-r border-t-0 border-b-0 rounded-none bg-background/100 shadow-xl overflow-auto">
               <CardHeader className="border-b">
                 <CardTitle className="text-xl neon-text">Game Menu</CardTitle>
               </CardHeader>
@@ -94,7 +94,7 @@ const GameMenu = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={toggleMenu}
-            className="fixed inset-0 bg-background/90 z-40"
+            className="fixed inset-0 bg-background/50 z-40"
           />
         )}
       </AnimatePresence>
