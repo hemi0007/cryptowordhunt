@@ -45,15 +45,8 @@ export const useWordSearch = create<WordSearchState>()(
       console.log("Game initialized with words:", placedWords);
     },
 
-    // Cache for found words to avoid repeated checks
-    const foundWordsCache = new Set();
-
     findWord: (selectedCells) => {
       const { placedWords, wordPositions, foundWords } = get();
-
-      // Quick cache check
-      const cellKey = selectedCells.map(cell => `${cell.row},${cell.col}`).join('|');
-      if (foundWordsCache.has(cellKey)) return null;
 
       // Get the letters from selected cells to form a word
       const { grid } = get();
