@@ -9,13 +9,23 @@ import { Slider } from "./ui/slider";
 
 const GameMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { isMuted, volume, toggleMute, setVolume } = useAudio();
+  const { isMuted, volume, toggleMute, setVolume, backgroundMusic, hitSound, successSound } = useAudio();
   const [localVolume, setLocalVolume] = useState(volume * 100);
 
   // Sync local volume with store volume
   useEffect(() => {
     setLocalVolume(volume * 100);
   }, [volume]);
+  
+  // Helper function to properly toggle mute state
+  const handleToggleMute = () => {
+    try {
+      toggleMute();
+      console.log("Mute toggled:", !isMuted);
+    } catch (error) {
+      console.error("Error toggling mute:", error);
+    }
+  };
   
   const toggleMenu = () => setIsOpen(!isOpen);
 
@@ -71,10 +81,10 @@ const GameMenu = () => {
                     <Button 
                       variant="outline"
                       size="sm"
-                      onClick={toggleMute}
+                      onClick={handleToggleMute}
                       className="min-w-20"
                     >
-                      {isMuted ? "Unmute" : "Mute"}
+                      {isMuted ? "Unmute 🔇" : "Mute 🔊"}
                     </Button>
                     <Slider
                       disabled={isMuted}
