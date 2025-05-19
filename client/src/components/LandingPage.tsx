@@ -62,23 +62,14 @@ const LandingPage = () => {
         </motion.p>
       </header>
 
-      {/* Main Content */}
+      {/* Empty space between header and play button */}
       <motion.div 
-        className="w-full max-w-5xl"
-        initial={{ y: 50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
+        className="w-full max-w-5xl flex-grow"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
       >
-        <div className="flex flex-col items-center justify-center">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold mb-4 neon-text">
-              Enter The Matrix, Beat The Puzzle
-            </h2>
-            <p className="mb-6">
-              Prove your diamond hands 💎🙌 by finding all the crypto words before the timer runs out!
-            </p>
-          </div>
-        </div>
+        {/* No content here intentionally to keep the page clean */}
       </motion.div>
       
       {/* Play button moved to bottom */}
