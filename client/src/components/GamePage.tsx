@@ -125,17 +125,19 @@ function GamePage() {
     // Update score
     setScore(roundScore);
 
-    // Enhanced round completion detection with better logging
+    // Enhanced round completion detection with guaranteed modal display
     if (found === total && total > 0 && found > 0) {
       // Add detailed logging to troubleshoot modal issues
       console.log(`Round ${roundNumber} completed! Found: ${found}/${total}`);
       console.log(`Round state - complete: ${roundComplete}, modal: ${showModal}, dismissed: ${modalDismissed}`);
       
-      // Always show completion regardless of previous state
-      setRoundComplete(true);
-      setShowModal(true);
-      setModalDismissed(false); // Reset modal dismissed flag
-      setTimerPaused(true);
+      // Force a guaranteed modal display with a slight delay for stability
+      setTimeout(() => {
+        setRoundComplete(true);
+        setShowModal(true);
+        setModalDismissed(false); // Reset modal dismissed flag
+        setTimerPaused(true);
+      }, 100);
 
       // Stop the timer
       if (intervalRef.current) {
