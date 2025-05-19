@@ -78,24 +78,55 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({
     // Only reset the round completion state, not the score
     setRoundScoreCalculated(false);
 
-    // Determine word count based on round number (increasing difficulty)
+    // Improved difficulty curve - exponential scaling for more challenging progression
+    // Round 1: 8 words, Round 2: 9 words, Round 3: 11 words, Round 4: 13 words, etc.
     const baseWordCount = 8;
-    const wordCount = Math.min(baseWordCount + Math.floor(roundNumber / 2), 15);
+    const difficultyFactor = Math.pow(1.15, roundNumber - 1); // Exponential scaling
+    const wordCount = Math.min(Math.round(baseWordCount * difficultyFactor), 15);
 
-    // Get words for this round
+    // Get words for this round - prioritizing a mix of word lengths for better gameplay
     let chosenWords;
     if (getRandomWords) {
       // Use the provided function to get words (avoids repeating words across rounds)
       chosenWords = getRandomWords(wordCount);
     } else {
-      // Fallback to random selection from all words
+      // Improved word selection - ensure a mix of short and long words
       const shuffledWords = [...CRYPTO_WORDS].sort(() => Math.random() - 0.5);
-      chosenWords = shuffledWords.slice(0, wordCount);
+      
+      // Split into short, medium, and long words
+      const shortWords = shuffledWords.filter(word => word.length <= 4);
+      const mediumWords = shuffledWords.filter(word => word.length > 4 && word.length <= 7);
+      const longWords = shuffledWords.filter(word => word.length > 7);
+      
+      // Determine proportions based on round number (later rounds get more long words)
+      const longWordPct = Math.min(0.15 + (roundNumber * 0.05), 0.4); // 15-40% long words
+      const shortWordPct = Math.max(0.4 - (roundNumber * 0.05), 0.2); // 40-20% short words
+      const mediumWordPct = 1 - longWordPct - shortWordPct; // Remaining % medium words
+      
+      // Calculate counts (ensure at least 1 of each type if possible)
+      const longWordCount = Math.max(1, Math.round(wordCount * longWordPct));
+      const shortWordCount = Math.max(1, Math.round(wordCount * shortWordPct));
+      const mediumWordCount = wordCount - longWordCount - shortWordCount;
+      
+      // Create balanced word list
+      chosenWords = [
+        ...longWords.slice(0, longWordCount),
+        ...mediumWords.slice(0, mediumWordCount),
+        ...shortWords.slice(0, shortWordCount)
+      ];
+      
+      // Ensure we have exactly wordCount items (in case of rounding issues)
+      while (chosenWords.length > wordCount) {
+        chosenWords.pop();
+      }
+      
+      // Shuffle final selection for variety
+      chosenWords.sort(() => Math.random() - 0.5);
     }
 
-    // Determine grid size based on round number (increasing difficulty)
+    // Balanced grid size calculation - ensures grid is appropriate for word count and round difficulty
     const baseGridSize = 10;
-    const gridSize = Math.min(baseGridSize + Math.floor(roundNumber / 3), 15);
+    const gridSize = Math.min(baseGridSize + Math.floor(roundNumber / 2.5), 15);
 
     console.log(`Initializing Round ${roundNumber} with ${chosenWords.length} words on ${gridSize}x${gridSize} grid`);
 
@@ -439,31 +470,71 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({
     setMiningCooldown(true);
   };
 
-  // Handle FUD Shield power-up (pauses timer)
+  // Handle FUD Shield power-up (pauses timer) - Enhanced version with gradual time bonus
   const handleFudShield = () => {
     // Check if already used
     if (fudShieldUsed) return;
 
     setFudShieldActive(true);
     setFudShieldUsed(true); // Mark as used (one-time use)
-    console.log("FUD Shield activated - adding 40 seconds");
+    
+    // Determine time bonus based on round number and how many words are left
+    const unsolvedWords = placedWords.length - foundWords.length;
+    const baseBonus = 40; // Base time in seconds
+    const difficultyMultiplier = typeof roundNumber === 'number' ? Math.min(1.2, 1 + (roundNumber * 0.1)) : 1;
+    const extraTime = Math.round(baseBonus * difficultyMultiplier);
+    
+    console.log(`FUD Shield activated - adding ${extraTime} seconds`);
     playSuccess(); // Play sound effect
-
-    // Add 40 seconds to the timer by momentarily pausing and updating time
+    
+    // Add time to the timer in increments for dramatic effect
+    const timeIncrements = 5; // Add time in 5 chunks
+    const timePerIncrement = Math.ceil(extraTime / timeIncrements);
+    
+    // First pause the timer
     if (onTimePause) {
-      onTimePause(true, { addTime: 40 });
+      onTimePause(true, { fudShieldActive: true });
     }
-
-    // Visual feedback that power-up is active
+    
+    // Add time in increments
+    let currentIncrement = 0;
+    const addTimeInterval = setInterval(() => {
+      if (currentIncrement < timeIncrements) {
+        // Add a chunk of time
+        if (onTimePause) {
+          onTimePause(true, { 
+            addTime: timePerIncrement,
+            fudShieldActive: true 
+          });
+        }
+        
+        // Play a sound for each increment
+        playHit();
+        currentIncrement++;
+      } else {
+        clearInterval(addTimeInterval);
+        
+        // Resume the timer after all time has been added
+        setTimeout(() => {
+          setFudShieldActive(false);
+          console.log(`FUD Shield effect applied - Added ${extraTime} seconds total`);
+          
+          // Resume the timer
+          if (onTimePause) {
+            onTimePause(false);
+          }
+        }, 500);
+      }
+    }, 300);
+    
+    // Safety timeout to ensure timer resumes
     setTimeout(() => {
+      clearInterval(addTimeInterval);
       setFudShieldActive(false);
-      console.log("FUD Shield effect applied");
-      playHit(); // Play sound effect for deactivation
-      // Resume the timer
       if (onTimePause) {
         onTimePause(false);
       }
-    }, 1000);
+    }, timeIncrements * 300 + 1000);
 
     // Set cooldown for UI feedback
     setFudShieldCooldown(true);
@@ -492,15 +563,19 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({
                 cell => cell.row === rowIndex && cell.col === colIndex
               );
 
-              // Check if cell is part of a found word
-              const isFound = foundWords.some(word => {
+              // Enhanced check for found words - return the word info for color coding
+              let foundWordInfo = null;
+              for (const word of foundWords) {
                 const path = wordPositions[word];
-                return path && path.some(cell => cell.row === rowIndex && cell.col === colIndex);
-              });
-
+                if (path && path.some(cell => cell.row === rowIndex && cell.col === colIndex)) {
+                  foundWordInfo = { word, path };
+                  break;
+                }
+              }
+              
               // Check if cell is in currently highlighted path (for power-ups)
-              const isHighlighted = currentHighlight.some(
-                cell => cell.row === rowIndex && cell.col === colIndex
+              const highlightInfo = currentHighlight.find(
+                highlight => highlight.cell.row === rowIndex && highlight.cell.col === colIndex
               );
 
               // Set style for highlighted cells
