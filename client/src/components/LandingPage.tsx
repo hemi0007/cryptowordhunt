@@ -107,9 +107,12 @@ const LandingPage = () => {
           </motion.h1>
         </header>
 
-        {/* Crypto Coins Image */}
+        {/* Spacer to push content down from title */}
+        <div className="flex-grow"></div>
+
+        {/* Crypto Coins Image - Centered */}
         <motion.div
-          className="w-full flex justify-center my-8"
+          className="w-full flex justify-center"
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ 
@@ -129,9 +132,9 @@ const LandingPage = () => {
         {/* Spacer to push content apart */}
         <div className="flex-grow"></div>
         
-        {/* Play button - moved even further down */}
+        {/* Play button */}
         <motion.div
-          className="mb-4 text-center mt-16" 
+          className="mb-4 text-center mt-8" 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7 }}
