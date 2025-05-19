@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Slider } from "./ui/slider";
 import { useAudio } from "../lib/stores/useAudio";
@@ -10,6 +10,53 @@ const LandingPage = () => {
   const { backgroundMusic, toggleMute, isMuted, setVolume } = useAudio();
   const [activeTab, setActiveTab] = useState<"howToPlay" | "soundSettings" | null>(null);
   const [volume, setVolumeState] = useState(useAudio.getState().volume);
+  const [titleText, setTitleText] = useState("ChainWords");
+  const originalTitle = "ChainWords";
+  
+  // Word search animation for title
+  useEffect(() => {
+    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    let iteration = 0;
+    let interval: NodeJS.Timeout | null = null;
+    
+    const animateTitle = () => {
+      interval = setInterval(() => {
+        setTitleText(
+          originalTitle.split("")
+            .map((letter, index) => {
+              if (index < iteration) {
+                return originalTitle[index];
+              }
+              return letters[Math.floor(Math.random() * 26)];
+            })
+            .join("")
+        );
+        
+        if (iteration >= originalTitle.length) {
+          clearInterval(interval!);
+        }
+        
+        iteration += 1/3;
+      }, 50);
+    };
+    
+    // Start animation after a small delay
+    const timeout = setTimeout(() => {
+      animateTitle();
+    }, 1000);
+    
+    // Set up repeating animation
+    const repeatInterval = setInterval(() => {
+      iteration = 0;
+      animateTitle();
+    }, 10000); // Repeat every 10 seconds
+    
+    return () => {
+      clearTimeout(timeout);
+      clearInterval(interval!);
+      clearInterval(repeatInterval);
+    };
+  }, []);
   
   // Function to handle volume changes
   const handleVolumeChange = (newVolume: number) => {
@@ -60,16 +107,16 @@ const LandingPage = () => {
             animate={{ y: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 15 }}
           >
-            ChainWords
+            {titleText}
           </motion.h1>
         </header>
 
         {/* Spacer to push content apart */}
         <div className="flex-grow"></div>
         
-        {/* Play button - moved down 20% */}
+        {/* Play button - moved down 30% total */}
         <motion.div
-          className="mb-4 text-center mt-20"
+          className="mb-4 text-center mt-32"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7 }}
