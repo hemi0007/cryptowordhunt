@@ -91,8 +91,9 @@ const LandingPage = () => {
       style={{
         backgroundImage: `url('/images/mainmenu.png')`,
         backgroundSize: 'cover',
-        backgroundPosition: 'center',
+        backgroundPosition: 'center center',
         backgroundRepeat: 'no-repeat',
+        backgroundAttachment: 'fixed',
       }}
     >
       {/* No overlay - removed */}
