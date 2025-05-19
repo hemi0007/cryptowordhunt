@@ -4,6 +4,7 @@ import Confetti from "react-confetti";
 import { useGame } from "../lib/stores/useGame";
 import ScoreSubmissionForm from "./ScoreSubmissionForm";
 import Leaderboard from "./Leaderboard";
+import { apiRequest } from "../lib/queryClient";
 
 interface EndGameModalProps {
   score: number;
@@ -27,8 +28,10 @@ const EndGameModal: React.FC<EndGameModalProps> = ({
     width: window.innerWidth,
     height: window.innerHeight,
   });
+  const [topScores, setTopScores] = useState<any[]>([]);
+  const [loadingScores, setLoadingScores] = useState(true);
 
-  // Determine if game result is a success
+  // Determine if game result is a success and fetch top scores
   useEffect(() => {
     // Consider it a success if the player found at least 50% of words
     setIsSuccess(foundWords >= Math.ceil(totalWords / 2));
@@ -42,6 +45,25 @@ const EndGameModal: React.FC<EndGameModalProps> = ({
     };
 
     window.addEventListener("resize", handleResize);
+    
+    // Fetch top scores for the leaderboard
+    const fetchTopScores = async () => {
+      try {
+        setLoadingScores(true);
+        const data = await apiRequest<any[]>({
+          url: '/api/scores',
+          method: 'GET',
+          on401: 'returnNull'
+        });
+        setTopScores(data?.slice(0, 3) || []);
+      } catch (err) {
+        console.error('Failed to fetch top scores:', err);
+      } finally {
+        setLoadingScores(false);
+      }
+    };
+
+    fetchTopScores();
     
     return () => {
       window.removeEventListener("resize", handleResize);
@@ -140,6 +162,34 @@ const EndGameModal: React.FC<EndGameModalProps> = ({
                   <div className="text-sm uppercase tracking-wide text-muted-foreground">Rank</div>
                   <div className="text-xl font-mono text-gradient">{calculateRank()}</div>
                 </div>
+              </div>
+              
+              {/* Top Crypto Hunters */}
+              <div className="mb-6 border rounded-xl p-3 bg-secondary/40">
+                <h3 className="text-lg font-semibold neon-text mb-2">🏆 Top Crypto Hunters</h3>
+                {loadingScores ? (
+                  <div className="flex justify-center py-3">
+                    <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-primary"></div>
+                  </div>
+                ) : topScores.length > 0 ? (
+                  <div className="space-y-2">
+                    {topScores.map((score, index) => (
+                      <div key={score.id} className="flex items-center justify-between p-2 rounded-lg bg-muted/30">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold">
+                            {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}
+                          </span>
+                          <span className="font-medium">{score.playerName}</span>
+                        </div>
+                        <div className="font-mono neon-green">{score.score.toLocaleString()}</div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center text-muted-foreground py-2">
+                    No scores yet. Be the first to make the leaderboard!
+                  </div>
+                )}
               </div>
               
               {/* CTA Buttons */}
