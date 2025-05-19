@@ -92,34 +92,34 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({
     } else {
       // Improved word selection - ensure a mix of short and long words
       const shuffledWords = [...CRYPTO_WORDS].sort(() => Math.random() - 0.5);
-      
+
       // Split into short, medium, and long words
       const shortWords = shuffledWords.filter(word => word.length <= 4);
       const mediumWords = shuffledWords.filter(word => word.length > 4 && word.length <= 7);
       const longWords = shuffledWords.filter(word => word.length > 7);
-      
+
       // Determine proportions based on round number (later rounds get more long words)
       const longWordPct = Math.min(0.15 + (roundNumber * 0.05), 0.4); // 15-40% long words
       const shortWordPct = Math.max(0.4 - (roundNumber * 0.05), 0.2); // 40-20% short words
       const mediumWordPct = 1 - longWordPct - shortWordPct; // Remaining % medium words
-      
+
       // Calculate counts (ensure at least 1 of each type if possible)
       const longWordCount = Math.max(1, Math.round(wordCount * longWordPct));
       const shortWordCount = Math.max(1, Math.round(wordCount * shortWordPct));
       const mediumWordCount = wordCount - longWordCount - shortWordCount;
-      
+
       // Create balanced word list
       chosenWords = [
         ...longWords.slice(0, longWordCount),
         ...mediumWords.slice(0, mediumWordCount),
         ...shortWords.slice(0, shortWordCount)
       ];
-      
+
       // Ensure we have exactly wordCount items (in case of rounding issues)
       while (chosenWords.length > wordCount) {
         chosenWords.pop();
       }
-      
+
       // Shuffle final selection for variety
       chosenWords.sort(() => Math.random() - 0.5);
     }
@@ -276,9 +276,9 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({
       }, 0);
       // Apply multiplier to all score components
       const wordScore = (baseScore + lengthBonus + rareLetterBonus) * scoreMultiplier;
-      
+
       console.log(`Word found: ${result.word} - Score: ${wordScore} (Base: ${baseScore}, Length bonus: ${lengthBonus}, Rare letter bonus: ${rareLetterBonus}, Multiplier: ${scoreMultiplier}x)`);
-      
+
       setScore(prevScore => prevScore + wordScore);
     } else {
       // Word not found
@@ -319,7 +319,7 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({
         // Smart hint system - show either the start or middle of the word
         const pathLength = wordPath.length;
         const hintType = Math.random() < 0.5 ? 'start' : 'middle';
-        
+
         let hintCells;
         if (hintType === 'start') {
           // Show the beginning of the word (first ~40%)
@@ -337,7 +337,7 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({
         // Animated hint effect - pulsing highlight
         const flashTimes = 3;
         let flashCount = 0;
-        
+
         const flashInterval = setInterval(() => {
           if (flashCount < flashTimes * 2) {
             if (flashCount % 2 === 0) {
@@ -422,23 +422,23 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({
 
     setMiningActive(true);
     setMiningUsed(true); // Mark as used (one-time use)
-    
+
     // Enhanced score multiplier - progressive increase for more excitement
     const multiplierSteps = [1.5, 2, 2.5, 3];
     let currentStep = 0;
-    
+
     // Start with initial multiplier
     setScoreMultiplier(multiplierSteps[0]);
     console.log(`Mining Boost activated - ${multiplierSteps[0]}x score multiplier enabled (one-time use)`);
     playSuccess(); // Play success sound
-    
+
     // Create visual feedback in the parent component
     if (onTimePause) {
       // We're using onTimePause as a generic state updater
       // @ts-ignore - This is intentional to pass along mining state
       onTimePause(false, { miningActive: true });
     }
-    
+
     // Progressive multiplier increase at intervals
     const multiplierInterval = setInterval(() => {
       currentStep++;
@@ -450,7 +450,7 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({
         clearInterval(multiplierInterval);
       }
     }, 7500); // Every 7.5 seconds, increase multiplier
-    
+
     // Turn off after 30 seconds
     setTimeout(() => {
       setMiningActive(false);
@@ -477,25 +477,25 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({
 
     setFudShieldActive(true);
     setFudShieldUsed(true); // Mark as used (one-time use)
-    
+
     // Determine time bonus based on round number and how many words are left
     const unsolvedWords = placedWords.length - foundWords.length;
     const baseBonus = 40; // Base time in seconds
     const difficultyMultiplier = typeof roundNumber === 'number' ? Math.min(1.2, 1 + (roundNumber * 0.1)) : 1;
     const extraTime = Math.round(baseBonus * difficultyMultiplier);
-    
+
     console.log(`FUD Shield activated - adding ${extraTime} seconds`);
     playSuccess(); // Play sound effect
-    
+
     // Add time to the timer in increments for dramatic effect
     const timeIncrements = 5; // Add time in 5 chunks
     const timePerIncrement = Math.ceil(extraTime / timeIncrements);
-    
+
     // First pause the timer
     if (onTimePause) {
       onTimePause(true, { fudShieldActive: true });
     }
-    
+
     // Add time in increments
     let currentIncrement = 0;
     const addTimeInterval = setInterval(() => {
@@ -507,18 +507,18 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({
             fudShieldActive: true 
           });
         }
-        
+
         // Play a sound for each increment
         playHit();
         currentIncrement++;
       } else {
         clearInterval(addTimeInterval);
-        
+
         // Resume the timer after all time has been added
         setTimeout(() => {
           setFudShieldActive(false);
           console.log(`FUD Shield effect applied - Added ${extraTime} seconds total`);
-          
+
           // Resume the timer
           if (onTimePause) {
             onTimePause(false);
@@ -526,7 +526,7 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({
         }, 500);
       }
     }, 300);
-    
+
     // Safety timeout to ensure timer resumes
     setTimeout(() => {
       clearInterval(addTimeInterval);
@@ -572,7 +572,7 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({
                   break;
                 }
               }
-              
+
               // Check if cell is in currently highlighted path (for power-ups)
               const isHighlighted = currentHighlight.some(
                 cell => cell.row === rowIndex && cell.col === colIndex
@@ -581,7 +581,7 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({
               // Dynamic styling for visual feedback
               let cellStyle = {};
               let cellClass = "grid-cell";
-              
+
               // Apply styling based on state priority: highlight > found > selected
               if (isHighlighted) {
                 // Power-up highlight effect
@@ -666,6 +666,8 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({
             className={`power-up px-4 py-2 rounded-lg flex items-center gap-2 ${boostActive || boostUsed ? 'bg-muted' : 'bg-blue-600'}`}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            transition={{ type: "tween", duration: 0.1 }}
+            style={{ willChange: "transform" }}
             onClick={handleBoost}
             disabled={boostActive || boostUsed}
           >
@@ -677,6 +679,8 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({
             className={`power-up px-4 py-2 rounded-lg flex items-center gap-2 ${visionActive || visionUsed ? 'bg-muted' : 'bg-purple-600'}`}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            transition={{ type: "tween", duration: 0.1 }}
+            style={{ willChange: "transform" }}
             onClick={handleVision}
             disabled={visionActive || visionUsed}
           >
@@ -699,7 +703,6 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({
           <motion.button
             className={`power-up px-4 py-2 rounded-lg flex items-center gap-2 ${fudShieldActive || fudShieldUsed ? 'bg-muted' : 'bg-red-600'}`}
             whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
             onClick={handleFudShield}
             disabled={fudShieldActive || fudShieldUsed}
           >
