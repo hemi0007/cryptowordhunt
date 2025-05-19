@@ -131,15 +131,15 @@ function GamePage() {
       console.log(`Round ${roundNumber} completed! Found: ${found}/${total}`);
       console.log(`Round state - complete: ${roundComplete}, modal: ${showModal}, dismissed: ${modalDismissed}`);
       
-      // For round 3, end the game instead of showing continue option
-      if (roundNumber >= 3) {
+      // For round 3, end the game only when all words are found
+      if (roundNumber >= 3 && found === total) {
         console.log("Final round completed! Ending game...");
         setTimeout(() => {
           setRoundComplete(true);
           setShowModal(true);
           setModalDismissed(false);
           setTimerPaused(true);
-          // End the game after round 3
+          // End the game after round 3 is fully completed
           if (typeof end === "function") {
             end();
           }
