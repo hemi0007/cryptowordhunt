@@ -125,9 +125,13 @@ function GamePage() {
     // Update score
     setScore(roundScore);
 
-    // Handle round completion
-    if (found === total && total > 0 && found > 0 && !roundComplete) {
+    // Enhanced round completion detection with better logging
+    if (found === total && total > 0 && found > 0) {
+      // Add detailed logging to troubleshoot modal issues
       console.log(`Round ${roundNumber} completed! Found: ${found}/${total}`);
+      console.log(`Round state - complete: ${roundComplete}, modal: ${showModal}, dismissed: ${modalDismissed}`);
+      
+      // Always show completion regardless of previous state
       setRoundComplete(true);
       setShowModal(true);
       setModalDismissed(false); // Reset modal dismissed flag
@@ -200,12 +204,19 @@ function GamePage() {
     }, 100);
   };
 
-  // Handle timer pause/resume and power-ups
+  // Enhanced timer pause/resume with better handling for round completion
   const handleTimerPause = (isPaused: boolean, powerUpStates?: any): void => {
     console.log(
       `Timer pause state changed to: ${isPaused ? "PAUSED" : "RUNNING"}`,
     );
-    setTimerPaused(isPaused);
+    
+    // Only update pause state if we're not at round completion
+    if (!roundComplete || !showModal) {
+      setTimerPaused(isPaused);
+    } else {
+      // Ensure timer stays paused during round completion
+      setTimerPaused(true);
+    }
 
     // Handle adding time for FUD Shield
     if (powerUpStates?.addTime) {
