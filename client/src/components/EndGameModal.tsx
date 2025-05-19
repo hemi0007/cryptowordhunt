@@ -134,11 +134,11 @@ const EndGameModal: React.FC<EndGameModalProps> = ({
         return (
           <>
             {/* Header with result text */}
-            <div className={`p-6 ${isSuccess ? 'bg-green-900/30' : 'bg-amber-900/30'}`}>
-              <h2 className="text-3xl font-bold text-center mb-2">
+            <div className={`p-6 ${isSuccess ? 'bg-[#00995e]/20' : 'bg-[#995e00]/20'}`}>
+              <h2 className="text-3xl font-bold text-center mb-2 neon-text">
                 {isSuccess ? '🚀 Game Complete!' : '⏱️ Time\'s Up!'}
               </h2>
-              <p className="text-center text-muted-foreground">
+              <p className="text-center text-white/70">
                 {isSuccess 
                   ? 'Great job! You\'ve found enough crypto words.'
                   : 'Keep practicing! The crypto market is volatile.'}
@@ -165,28 +165,28 @@ const EndGameModal: React.FC<EndGameModalProps> = ({
               </div>
               
               {/* Top Crypto Hunters */}
-              <div className="mb-6 border rounded-xl p-3 bg-secondary/40">
+              <div className="mb-6 border border-[#00ff99]/30 rounded-xl p-3 bg-[#081730]/50">
                 <h3 className="text-lg font-semibold neon-text mb-2">🏆 Top Crypto Hunters</h3>
                 {loadingScores ? (
                   <div className="flex justify-center py-3">
-                    <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-primary"></div>
+                    <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-[#00ff99]"></div>
                   </div>
                 ) : topScores.length > 0 ? (
                   <div className="space-y-2">
                     {topScores.map((score, index) => (
-                      <div key={score.id} className="flex items-center justify-between p-2 rounded-lg bg-muted/30">
+                      <div key={score.id} className="flex items-center justify-between p-2 rounded-lg bg-[#081730]/80 border border-[#00ff99]/20">
                         <div className="flex items-center gap-2">
                           <span className="font-bold">
                             {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}
                           </span>
-                          <span className="font-medium">{score.playerName}</span>
+                          <span className="font-medium text-white">{score.playerName}</span>
                         </div>
                         <div className="font-mono neon-green">{score.score.toLocaleString()}</div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center text-muted-foreground py-2">
+                  <div className="text-center text-white/70 py-2">
                     No scores yet. Be the first to make the leaderboard!
                   </div>
                 )}
@@ -196,7 +196,7 @@ const EndGameModal: React.FC<EndGameModalProps> = ({
               <div className="flex flex-col sm:flex-row gap-3 mb-4">
                 {roundComplete && onContinueNextRound ? (
                   <motion.button
-                    className="flex-1 bg-green-600 text-foreground py-2 px-4 rounded-md"
+                    className="flex-1 bg-[#00995e] text-white py-2 px-4 rounded-md border border-[#00ff99]/50 neon-border"
                     whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.97 }}
                     onClick={onContinueNextRound}
@@ -205,7 +205,7 @@ const EndGameModal: React.FC<EndGameModalProps> = ({
                   </motion.button>
                 ) : (
                   <motion.button
-                    className="flex-1 bg-primary text-foreground py-2 px-4 rounded-md"
+                    className="flex-1 animated-gradient py-2 px-4 rounded-md border border-[#00ff99]/50 neon-border"
                     whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.97 }}
                     onClick={handlePlayAgain}
@@ -215,7 +215,7 @@ const EndGameModal: React.FC<EndGameModalProps> = ({
                 )}
                 
                 <motion.button
-                  className="flex-1 bg-blue-600 text-foreground py-2 px-4 rounded-md"
+                  className="flex-1 bg-[#1d9bf0] text-white py-2 px-4 rounded-md border border-[#1d9bf0]/50"
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
                   onClick={shareResult}
@@ -226,7 +226,7 @@ const EndGameModal: React.FC<EndGameModalProps> = ({
               
               <div className="flex justify-center">
                 <motion.button
-                  className="flex-1 max-w-60 bg-amber-600 text-foreground py-2 px-4 rounded-md"
+                  className="flex-1 max-w-60 bg-[#995e00] text-white py-2 px-4 rounded-md border border-[#ffb300]/50"
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
                   onClick={() => setView('submitScore')}
@@ -257,7 +257,7 @@ const EndGameModal: React.FC<EndGameModalProps> = ({
       {/* Modal overlay */}
       <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
         <motion.div 
-          className="w-full max-w-lg bg-secondary rounded-xl shadow-xl border border-foreground/20 overflow-hidden"
+          className="w-full max-w-lg rounded-xl shadow-xl border-2 border-[#00ff99]/70 overflow-hidden neon-border bg-[#081730]/95"
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ type: "spring", duration: 0.5 }}
