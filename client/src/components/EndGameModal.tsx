@@ -224,23 +224,14 @@ const EndGameModal: React.FC<EndGameModalProps> = ({
                 </motion.button>
               </div>
               
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex justify-center">
                 <motion.button
-                  className="flex-1 bg-amber-600 text-foreground py-2 px-4 rounded-md"
+                  className="flex-1 max-w-60 bg-amber-600 text-foreground py-2 px-4 rounded-md"
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
                   onClick={() => setView('submitScore')}
                 >
-                  <i className="fas fa-trophy mr-2"></i> Save Score
-                </motion.button>
-                
-                <motion.button
-                  className="flex-1 bg-purple-600 text-foreground py-2 px-4 rounded-md"
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => setView('leaderboard')}
-                >
-                  <i className="fas fa-list-ol mr-2"></i> Leaderboard
+                  <i className="fas fa-trophy mr-2"></i> Save My Score
                 </motion.button>
               </div>
             </div>
