@@ -6,12 +6,13 @@ import WordSearchGame from "./WordSearchGame";
 import EndGameModal from "./EndGameModal";
 import GameMenu from "./GameMenu";
 
-// Track words used across rounds to avoid repetition
-const usedWordsRef = useRef<Set<string>>(new Set());
-
+// Define the GamePage component
 function GamePage() {
   // Get game phase from the store
   const { phase, end } = useGame();
+  
+  // Track words used across rounds to avoid repetition - inside component body
+  const usedWordsRef = useRef<Set<string>>(new Set());
 
   // Game state
   const [timer, setTimer] = useState(300); // 5 minutes = 300 seconds
