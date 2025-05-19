@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-
-// Track words used across rounds to avoid repetition
-const usedWordsRef = useRef<Set<string>>(new Set());
 import { useGame } from "../lib/stores/useGame";
 import { CRYPTO_WORDS } from "../lib/constants";
 import WordSearchGame from "./WordSearchGame";
 import EndGameModal from "./EndGameModal";
 import GameMenu from "./GameMenu";
+
+// Track words used across rounds to avoid repetition
+const usedWordsRef = useRef<Set<string>>(new Set());
 
 function GamePage() {
   // Get game phase from the store
