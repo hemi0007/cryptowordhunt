@@ -86,6 +86,11 @@ const EndGameModal: React.FC<EndGameModalProps> = (props) => {
 
   // Handle play again button
   const handlePlayAgain = () => {
+    // Reset game state
+    restart();
+    
+    // Force reload to reset all game state including round number
+    window.location.reload();
     restart();
   };
 
