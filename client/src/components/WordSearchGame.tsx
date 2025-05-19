@@ -574,20 +574,48 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({
               }
               
               // Check if cell is in currently highlighted path (for power-ups)
-              const highlightInfo = currentHighlight.find(
-                highlight => highlight.cell.row === rowIndex && highlight.cell.col === colIndex
+              const isHighlighted = currentHighlight.some(
+                cell => cell.row === rowIndex && cell.col === colIndex
               );
 
-              // Set style for highlighted cells
-              const highlightStyle = isHighlighted 
-                ? { backgroundColor: currentHighlightColor } 
-                : {};
+              // Dynamic styling for visual feedback
+              let cellStyle = {};
+              let cellClass = "grid-cell";
+              
+              // Apply styling based on state priority: highlight > found > selected
+              if (isHighlighted) {
+                // Power-up highlight effect
+                cellStyle = { 
+                  backgroundColor: currentHighlightColor,
+                  boxShadow: '0 0 8px rgba(255, 255, 255, 0.7)'
+                };
+                cellClass += " highlighted";
+              } else if (foundWordInfo) {
+                // Found word with color based on word length (longer = warmer)
+                const wordLength = foundWordInfo.word.length;
+                const hue = Math.min(120 + wordLength * 15, 300); // range from green to purple
+                cellStyle = { 
+                  backgroundColor: `hsl(${hue}, 70%, 40%)`,
+                  color: 'white',
+                  fontWeight: 'bold',
+                  textShadow: '0 0 2px rgba(0, 0, 0, 0.5)'
+                };
+                cellClass += " found";
+              } else if (isSelected) {
+                // Currently selected cell
+                cellStyle = {
+                  backgroundColor: '#4f46e5',
+                  color: 'white',
+                  transform: 'scale(1.05)'
+                };
+                cellClass += " selected";
+              }
 
               return (
                 <motion.div 
                   key={`${rowIndex}-${colIndex}`}
-                  className={`grid-cell ${isSelected ? 'selected' : ''} ${isFound ? 'found' : ''} ${isHighlighted ? 'highlighted' : ''}`}
-                  style={highlightStyle}
+                  className={cellClass}
+                  style={cellStyle}
                   onMouseDown={() => handleCellStart(rowIndex, colIndex)}
                   onMouseEnter={() => handleCellMove(rowIndex, colIndex)}
                   onMouseUp={handleCellEnd}
