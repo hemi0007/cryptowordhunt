@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAudio } from "../lib/stores/useAudio";
@@ -10,7 +10,13 @@ import { Slider } from "./ui/slider";
 const GameMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { isMuted, volume, toggleMute, setVolume } = useAudio();
+  const [localVolume, setLocalVolume] = useState(volume * 100);
 
+  // Sync local volume with store volume
+  useEffect(() => {
+    setLocalVolume(volume * 100);
+  }, [volume]);
+  
   const toggleMenu = () => setIsOpen(!isOpen);
 
   return (
@@ -72,11 +78,16 @@ const GameMenu = () => {
                     </Button>
                     <Slider
                       disabled={isMuted}
-                      value={[volume * 100]}
+                      value={[localVolume]}
                       max={100}
                       step={1}
                       className={`w-full ${isMuted ? "opacity-50" : ""}`}
-                      onValueChange={(value) => setVolume(value[0] / 100)}
+                      onValueChange={(value) => {
+                        const newVolume = value[0] / 100;
+                        setLocalVolume(value[0]);
+                        setVolume(newVolume);
+                        console.log(`Volume changed to: ${newVolume}`);
+                      }}
                     />
                   </div>
                 </div>

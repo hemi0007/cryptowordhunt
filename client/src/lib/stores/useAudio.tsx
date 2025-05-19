@@ -31,13 +31,24 @@ export const useAudio = create<AudioState>((set, get) => ({
   setSuccessSound: (sound) => set({ successSound: sound }),
   
   setVolume: (volume) => {
-    const { backgroundMusic, isMuted } = get();
+    const { backgroundMusic, hitSound, successSound, isMuted } = get();
     
     set({ volume });
     
-    if (backgroundMusic && !isMuted) {
+    // Apply volume to all audio elements
+    if (backgroundMusic) {
       backgroundMusic.volume = volume;
     }
+    
+    if (hitSound) {
+      hitSound.volume = volume;
+    }
+    
+    if (successSound) {
+      successSound.volume = volume;
+    }
+    
+    console.log(`Volume set to ${volume}`);
   },
   
   toggleMute: () => {
@@ -53,7 +64,18 @@ export const useAudio = create<AudioState>((set, get) => ({
         backgroundMusic.pause();
       } else {
         backgroundMusic.volume = volume;
-        backgroundMusic.play().catch(err => console.log("Autoplay prevented:", err));
+        // Try to play music if unmuting
+        try {
+          const playPromise = backgroundMusic.play();
+          if (playPromise !== undefined) {
+            playPromise.catch(err => {
+              console.log("Autoplay prevented when unmuting:", err);
+              // If autoplay is blocked, we'll need user interaction later
+            });
+          }
+        } catch (err) {
+          console.log("Error playing background music:", err);
+        }
       }
     }
     
