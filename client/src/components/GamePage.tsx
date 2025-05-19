@@ -11,7 +11,7 @@ function GamePage() {
   const { phase, end } = useGame();
   
   // Game state
-  const [timer, setTimer] = useState(60);
+  const [timer, setTimer] = useState(300); // 5 minutes = 300 seconds
   const [score, setScore] = useState(0);
   const [foundWordsCount, setFoundWordsCount] = useState(0);
   const [totalWords, setTotalWords] = useState(0);
@@ -143,7 +143,7 @@ function GamePage() {
     setTotalWords(0);
 
     // Calculate new time for next round
-    const baseTime = 60;
+    const baseTime = 300; // 5 minutes
     const roundBonus = Math.min(10 + (currentRound * 5), 30);
     const newTime = baseTime + roundBonus;
     
