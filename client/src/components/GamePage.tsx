@@ -327,7 +327,7 @@ function GamePage() {
           score={score}
           foundWords={foundWordsCount}
           totalWords={totalWords}
-          onContinueNextRound={handleContinueNextRound}
+          onContinueNextRound={roundNumber < 3 ? handleContinueNextRound : undefined}
           roundComplete={true}
         />
       )}
