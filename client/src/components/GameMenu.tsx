@@ -35,7 +35,7 @@ const GameMenu = () => {
             transition={{ type: "spring", bounce: 0.1 }}
             className="fixed top-0 right-0 h-screen w-full max-w-xs sm:max-w-sm md:max-w-md"
           >
-            <Card className="h-full border-l border-r border-t-0 border-b-0 rounded-none bg-background/95 backdrop-blur-md shadow-xl overflow-auto">
+            <Card className="h-full border-l border-r border-t-0 border-b-0 rounded-none bg-background/95 backdrop-blur-none shadow-xl overflow-auto">
               <CardHeader>
                 <CardTitle className="text-xl neon-text">Game Menu</CardTitle>
               </CardHeader>
@@ -43,7 +43,7 @@ const GameMenu = () => {
                 {/* How to Play */}
                 <div className="space-y-3">
                   <h3 className="text-lg font-semibold">How to Play</h3>
-                  <div className="text-sm text-muted-foreground space-y-2">
+                  <div className="text-sm text-foreground space-y-2 font-medium">
                     <p>1. Find crypto-related words in the grid.</p>
                     <p>2. Drag to select words horizontally, vertically, or diagonally.</p>
                     <p>3. Use power-ups to help you find words faster:</p>
@@ -94,7 +94,7 @@ const GameMenu = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={toggleMenu}
-            className="fixed inset-0 bg-background/50 backdrop-blur-sm z-40"
+            className="fixed inset-0 bg-background/80 z-40"
           />
         )}
       </AnimatePresence>
