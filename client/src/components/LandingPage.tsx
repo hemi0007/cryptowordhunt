@@ -40,58 +40,56 @@ const LandingPage = () => {
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="container mx-auto px-4 py-8 min-h-screen flex flex-col items-center"
+      className="min-h-screen flex flex-col items-center justify-between relative overflow-hidden"
+      style={{
+        backgroundImage: `url('/images/mainmenu.png')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}
     >
-      {/* Header Section */}
-      <header className="w-full text-center mb-8">
-        <motion.h1 
-          className="text-4xl md:text-6xl font-bold mb-8 neon-text neon-green"
-          initial={{ y: -50 }}
-          animate={{ y: 0 }}
-          transition={{ type: "spring", stiffness: 300, damping: 15 }}
-        >
-          ChainWords
-        </motion.h1>
-      </header>
+      {/* Dark overlay to improve text visibility */}
+      <div className="absolute inset-0 bg-black/50 z-0"></div>
+      
+      {/* Content container - sits above the background */}
+      <div className="container mx-auto px-4 py-8 z-10 flex flex-col items-center justify-between min-h-screen">
+        {/* Header Section */}
+        <header className="w-full text-center mb-8 mt-12">
+          <motion.h1 
+            className="text-5xl md:text-7xl font-bold mb-8 neon-text neon-green drop-shadow-xl"
+            initial={{ y: -50 }}
+            animate={{ y: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 15 }}
+          >
+            ChainWords
+          </motion.h1>
+        </header>
 
-      {/* Main menu image in the center */}
-      <motion.div 
-        className="w-full max-w-6xl flex-grow flex justify-center items-center"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-      >
-        <motion.img 
-          src="/images/mainmenu.png" 
-          alt="ChainWords game preview" 
-          className="w-full max-w-4xl rounded-xl shadow-lg border-2 border-foreground/20"
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.7 }}
-        />
-      </motion.div>
-      
-      {/* Play button moved to bottom */}
-      <motion.div
-        className="mt-10 mb-10 text-center"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.7 }}
-      >
-        <motion.button
-          className="animated-gradient py-4 px-8 text-2xl font-bold rounded-lg neon-border"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={start}
+        {/* Spacer to push content apart */}
+        <div className="flex-grow"></div>
+        
+        {/* Play button */}
+        <motion.div
+          className="mb-20 text-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.7 }}
         >
-          PLAY NOW 🚀
-        </motion.button>
-      </motion.div>
-      
-      {/* Footer */}
-      <footer className="mt-auto py-4 text-center w-full text-muted-foreground text-sm">
-        <p>Not financial advice. Just pixelated fun.</p>
-      </footer>
+          <motion.button
+            className="animated-gradient py-4 px-12 text-3xl font-bold rounded-lg neon-border shadow-xl"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={start}
+          >
+            PLAY NOW 🚀
+          </motion.button>
+        </motion.div>
+        
+        {/* Footer */}
+        <footer className="py-4 text-center w-full text-white/80 text-sm mb-4">
+          <p>Not financial advice. Just pixelated fun.</p>
+        </footer>
+      </div>
     </motion.div>
   );
 };
