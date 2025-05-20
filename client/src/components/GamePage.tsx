@@ -205,8 +205,10 @@ function GamePage() {
       console.log(`Starting round ${currentRound + 1} with ${newTime} seconds`);
       setRoundNumber(currentRound + 1);
 
-      // Force WordSearchGame to re-render with a new key
-      setGameKey(Date.now());
+      // Force WordSearchGame to re-render with a new key and ensure all state is reset
+      const newGameKey = Date.now();
+      setGameKey(newGameKey);
+      console.log(`New game key created: ${newGameKey} for round ${currentRound + 1}`);
 
       // Important: Unpause timer AFTER the game has fully rendered
       setTimeout(() => {
@@ -214,8 +216,21 @@ function GamePage() {
         setShowModal(false);
         setTimerPaused(false);
         console.log("Timer unpaused, round fully initialized");
-      }, 500); // Longer delay to ensure game is fully initialized
-    }, 100);
+      }, 800); // Longer delay to ensure game is fully initialized
+
+      // Additional check after a longer delay to make sure the next round is properly started
+      if (currentRound + 1 >= 3) {
+        console.log("Preparing final round with extra initialization time");
+        setTimeout(() => {
+          // Force another re-render if needed for the final round
+          if (foundWordsCount === 0 && totalWords === 0) {
+            console.log("Final round needs re-initialization");
+            setGameKey(Date.now());
+          }
+          console.log("Final round initialization complete");
+        }, 1200);
+      }
+    }, 200); // Slightly longer delay for better round transition
   };
 
   // Enhanced timer pause/resume with better handling for round completion
