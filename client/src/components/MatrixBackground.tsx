@@ -1,9 +1,6 @@
 import { useEffect, useRef, memo } from "react";
 
-// Simple crypto symbols that work reliably
-const CRYPTO_SYMBOLS = "₿$¥€£";
-
-// Simplified matrix background that works on all devices
+// Subtle matrix background with minimal animation
 const MatrixBackground = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   
@@ -30,40 +27,42 @@ const MatrixBackground = () => {
     // Add resize listener
     window.addEventListener("resize", resizeCanvas);
     
-    // Matrix rain setup
-    const fontSize = 14;
-    const columns = Math.floor(canvas.width / fontSize);
+    // Very minimal matrix setup - much fewer columns
+    const fontSize = 18;
+    // Use around 20% of the columns compared to full density
+    const columns = Math.floor((canvas.width / fontSize) * 0.2);
     const drops = Array(columns).fill(0);
     
-    // Animation function
+    // Animation function with longer delay
     function draw() {
       if (!isMounted) return;
       
-      // Create fade effect
-      ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+      // Slower fade for softer animation
+      ctx.fillStyle = "rgba(0, 0, 0, 0.03)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
-      // Draw characters
-      ctx.fillStyle = "#0f0";
+      // Soft green for less intensity
+      ctx.fillStyle = "rgba(0, 180, 0, 0.5)";
       ctx.font = `${fontSize}px monospace`;
       
-      for (let i = 0; i < drops.length; i++) {
-        // Choose a random character
-        const text = CRYPTO_SYMBOLS.charAt(Math.floor(Math.random() * CRYPTO_SYMBOLS.length));
+      // Only process a subset of columns each frame
+      for (let i = 0; i < drops.length; i += 2) {
+        // Only a few crypto symbols
+        const text = ["₿", "$"][Math.floor(Math.random() * 2)];
         
         // Draw the character
-        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        ctx.fillText(text, i * fontSize * 5, drops[i] * fontSize);
         
-        // Reset when hitting the bottom or randomly for some columns
-        if (drops[i] * fontSize > canvas.height || Math.random() > 0.98) {
+        // Much higher chance of resetting drops to create a sparse effect
+        if (drops[i] * fontSize > canvas.height || Math.random() > 0.95) {
           drops[i] = 0;
+        } else {
+          drops[i]++;
         }
-        
-        // Move drop down
-        drops[i]++;
       }
       
-      setTimeout(() => requestAnimationFrame(draw), 35);
+      // Much slower animation rate
+      setTimeout(() => requestAnimationFrame(draw), 150);
     }
     
     // Start animation
@@ -80,7 +79,7 @@ const MatrixBackground = () => {
     <canvas
       ref={canvasRef}
       className="fixed top-0 left-0 w-full h-full -z-10"
-      style={{ opacity: 0.8 }}
+      style={{ opacity: 0.6 }}
     />
   );
 };
