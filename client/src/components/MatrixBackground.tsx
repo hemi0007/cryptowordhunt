@@ -34,9 +34,10 @@ const MatrixBackground = () => {
     const resizeCanvas = () => {
       if (!isMounted || !canvas) return;
       
-      // Use 80% of the actual resolution for better performance
-      // This gives a slight blur but dramatically improves performance
-      const scaleFactor = window.devicePixelRatio > 1 ? 0.5 : 0.8;
+      // Reduce resolution further for mobile devices and high DPI screens
+      // This improves performance significantly on mobile
+      const isMobile = window.innerWidth < 768;
+      const scaleFactor = isMobile ? 0.3 : (window.devicePixelRatio > 1 ? 0.4 : 0.6);
       const width = Math.floor(window.innerWidth * scaleFactor);
       const height = Math.floor(window.innerHeight * scaleFactor);
       
@@ -60,19 +61,21 @@ const MatrixBackground = () => {
     };
     window.addEventListener("resize", handleResize);
 
-    // Matrix rain setup - drastically reduce number of columns
+    // Matrix rain setup with mobile optimizations
     const fontSize = 16;
-    // Use very low density for much better performance
-    const density = window.innerWidth > 1200 ? 0.3 : 0.2;
+    // Detect mobile and reduce density/quality for better performance
+    const isMobile = window.innerWidth < 768;
+    const density = isMobile ? 0.15 : (window.innerWidth > 1200 ? 0.25 : 0.2);
     const columns = Math.ceil((canvas.width / fontSize) * density);
     const drops: number[] = Array(columns).fill(1);
     
     // Pre-generate all random symbols just once
     const symbolCache = CRYPTO_SYMBOLS.split('');
     
-    // Use much lower frame rate (60fps -> 15fps)
+    // Use much lower frame rate on mobile
     let lastFrameTime = 0;
-    const frameRate = 70; // Render at ~14fps for much better performance
+    // Even lower FPS on mobile (8fps vs 14fps)
+    const frameRate = isMobile ? 120 : 70;
     
     // Ultra optimized animation function
     const drawMatrix = (timestamp: number) => {
