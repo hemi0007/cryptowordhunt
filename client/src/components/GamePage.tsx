@@ -133,18 +133,20 @@ function GamePage() {
     if (found === total && total > 0 && found > 0) {
       console.log(`Round ${roundNumber} completed! Found: ${found}/${total}`);
 
-      // For round 3, only end when complete or time runs out
-      if (roundNumber >= 3 && found === total) {
-        console.log("Final round completed! Ending game...");
-        setTimeout(() => {
-          setRoundComplete(true);
-          setShowModal(true);
-          setModalDismissed(false);
-          setTimerPaused(true);
-          if (typeof end === "function") {
-            end();
-          }
-        }, 100);
+      // For round 3, only show completion but don't auto-end
+      if (roundNumber >= 3) {
+        console.log("Round 3 in progress, completion: " + found + "/" + total);
+        if (found === total) {
+          console.log("Final round completed! Showing completion modal...");
+          setTimeout(() => {
+            setRoundComplete(true);
+            setShowModal(true);
+            setModalDismissed(false);
+            setTimerPaused(true);
+            // Don't automatically end the game, let the modal handle it
+          }, 100);
+        }
+      
       } else {
         // Normal round completion for rounds 1-2
         setRoundComplete(true);
@@ -449,15 +451,15 @@ function GamePage() {
         />
       )}
 
-      {/* Round Complete Modal - For non-final rounds */}
-      {showModal && roundComplete && phase === "playing" && roundNumber < 3 && (
+      {/* Round Complete Modal - For all rounds including final round */}
+      {showModal && roundComplete && phase === "playing" && (
         <EndGameModal
           score={score}
           foundWords={foundWordsCount}
           totalWords={totalWords}
-          onContinueNextRound={handleContinueNextRound}
+          onContinueNextRound={roundNumber < 3 ? handleContinueNextRound : undefined}
           roundComplete={true}
-          finalRound={false}
+          finalRound={roundNumber >= 3}
         />
       )}
     </motion.div>
