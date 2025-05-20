@@ -297,6 +297,10 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({
     // Check if already used
     if (boostUsed) return;
 
+    // Deduct 100 points for using power-up
+    setScore(prevScore => Math.max(0, prevScore - 100));
+    console.log("Deducted 100 points for using Boost power-up");
+
     // Find unsolved words, prioritizing longer words for better gameplay
     const unsolvedWords = placedWords
       .filter(word => !foundWords.includes(word))
@@ -374,6 +378,10 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({
   const handleVision = () => {
     // Check if already used
     if (visionUsed) return;
+
+    // Deduct 100 points for using power-up
+    setScore(prevScore => Math.max(0, prevScore - 100));
+    console.log("Deducted 100 points for using Diamond Vision power-up");
 
     setVisionActive(true);
     setVisionUsed(true); // Mark as used (one-time use)
