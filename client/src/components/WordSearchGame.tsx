@@ -428,6 +428,10 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({
     // Check if already used
     if (miningUsed) return;
 
+    // Deduct 100 points for using power-up
+    setScore(prevScore => Math.max(0, prevScore - 100));
+    console.log("Deducted 100 points for using Mining Boost power-up");
+
     setMiningActive(true);
     setMiningUsed(true); // Mark as used (one-time use)
 
@@ -482,6 +486,10 @@ const WordSearchGame: React.FC<WordSearchGameProps> = ({
   const handleFudShield = () => {
     // Check if already used
     if (fudShieldUsed) return;
+
+    // Deduct 100 points for using power-up
+    setScore(prevScore => Math.max(0, prevScore - 100));
+    console.log("Deducted 100 points for using FUD Shield power-up");
 
     setFudShieldActive(true);
     setFudShieldUsed(true); // Mark as used (one-time use)
