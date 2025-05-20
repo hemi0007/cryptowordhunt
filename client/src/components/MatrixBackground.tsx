@@ -1,6 +1,6 @@
 import { useEffect, useRef, memo } from "react";
 
-// Subtle matrix background with minimal animation
+// Balanced matrix background with moderate animation
 const MatrixBackground = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   
@@ -27,42 +27,51 @@ const MatrixBackground = () => {
     // Add resize listener
     window.addEventListener("resize", resizeCanvas);
     
-    // Very minimal matrix setup - much fewer columns
-    const fontSize = 18;
-    // Use around 20% of the columns compared to full density
-    const columns = Math.floor((canvas.width / fontSize) * 0.2);
+    // More balanced matrix setup - moderate column count
+    const fontSize = 16;
+    // Use around 35% of the columns for balanced look
+    const columns = Math.floor((canvas.width / fontSize) * 0.35);
     const drops = Array(columns).fill(0);
     
-    // Animation function with longer delay
+    // Crypto symbols with a bit more variety
+    const symbols = ["₿", "$", "Ξ", "Ð", "₮"];
+    
+    // Animation function with balanced speed
     function draw() {
-      if (!isMounted) return;
+      if (!isMounted || !ctx || !canvas) return;
       
-      // Slower fade for softer animation
-      ctx.fillStyle = "rgba(0, 0, 0, 0.03)";
+      // Balanced fade for smooth animation
+      ctx.fillStyle = "rgba(0, 0, 0, 0.04)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
-      // Soft green for less intensity
-      ctx.fillStyle = "rgba(0, 180, 0, 0.5)";
+      // Slightly more vibrant green with partial transparency
+      ctx.fillStyle = "rgba(0, 200, 0, 0.65)";
       ctx.font = `${fontSize}px monospace`;
       
-      // Only process a subset of columns each frame
-      for (let i = 0; i < drops.length; i += 2) {
-        // Only a few crypto symbols
-        const text = ["₿", "$"][Math.floor(Math.random() * 2)];
+      // Process more columns for better coverage
+      for (let i = 0; i < drops.length; i++) {
+        // Get a random symbol from our list
+        const text = symbols[Math.floor(Math.random() * symbols.length)];
         
-        // Draw the character
-        ctx.fillText(text, i * fontSize * 5, drops[i] * fontSize);
+        // Slightly more balanced spacing
+        const x = i * fontSize * 3;
+        const y = drops[i] * fontSize;
         
-        // Much higher chance of resetting drops to create a sparse effect
-        if (drops[i] * fontSize > canvas.height || Math.random() > 0.95) {
+        // Draw the character if it would be visible
+        if (y > 0 && y < canvas.height) {
+          ctx.fillText(text, x, y);
+        }
+        
+        // Balanced chance of resetting drops
+        if (drops[i] * fontSize > canvas.height || Math.random() > 0.975) {
           drops[i] = 0;
         } else {
           drops[i]++;
         }
       }
       
-      // Much slower animation rate
-      setTimeout(() => requestAnimationFrame(draw), 150);
+      // Moderate animation rate
+      setTimeout(() => requestAnimationFrame(draw), 100);
     }
     
     // Start animation
@@ -79,7 +88,7 @@ const MatrixBackground = () => {
     <canvas
       ref={canvasRef}
       className="fixed top-0 left-0 w-full h-full -z-10"
-      style={{ opacity: 0.6 }}
+      style={{ opacity: 0.65 }}
     />
   );
 };
