@@ -270,8 +270,7 @@ function GamePage() {
             </motion.div>
           )}
         </div>
-        
-        {/* Game Controls removed as requested */}
+
 
         {/* Game Stats */}
         <motion.div
@@ -320,7 +319,7 @@ function GamePage() {
         </motion.div>
       </header>
 
-      {/* Settings Panel removed as requested */}
+
 
       {/* Game Content */}
       <motion.div
