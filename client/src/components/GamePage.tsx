@@ -10,10 +10,6 @@ import EndGameModal from "./EndGameModal";
 function GamePage() {
   // Get game phase from the store
   const { phase, end } = useGame();
-  const { toggleMute, isMuted, setVolume, volume: audioVolume } = useAudio();
-  
-  // State for showing settings or help
-  const [showSettings, setShowSettings] = useState<'sound' | 'help' | null>(null);
 
   // Track words used across rounds to avoid repetition - inside component body
   const usedWordsRef = useRef<Set<string>>(new Set());
@@ -275,29 +271,7 @@ function GamePage() {
           )}
         </div>
         
-        {/* Game Controls */}
-        <div className="flex gap-2">
-          <button
-            onClick={() => setShowSettings(showSettings === 'help' ? null : 'help')}
-            className={`px-3 py-1 rounded-lg text-sm ${
-              showSettings === 'help' 
-                ? "bg-primary text-primary-foreground" 
-                : "bg-background/50 backdrop-blur-sm hover:bg-background/80"
-            }`}
-          >
-            How To Play
-          </button>
-          <button
-            onClick={() => setShowSettings(showSettings === 'sound' ? null : 'sound')}
-            className={`px-3 py-1 rounded-lg text-sm ${
-              showSettings === 'sound' 
-                ? "bg-primary text-primary-foreground" 
-                : "bg-background/50 backdrop-blur-sm hover:bg-background/80"
-            }`}
-          >
-            Sound Settings
-          </button>
-        </div>
+        {/* Game Controls removed as requested */}
 
         {/* Game Stats */}
         <motion.div
@@ -346,80 +320,7 @@ function GamePage() {
         </motion.div>
       </header>
 
-      {/* Settings Panel */}
-      {showSettings && (
-        <motion.div 
-          className="bg-background/50 backdrop-blur-md p-4 rounded-lg neon-border mb-4"
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-        >
-          {showSettings === 'help' && (
-            <div className="space-y-2 text-white">
-              <h3 className="text-lg font-bold">How To Play:</h3>
-              <ul className="list-disc list-inside space-y-1">
-                <li>Find crypto words in the grid by clicking and dragging</li>
-                <li>Use power-ups to help find difficult words:</li>
-                <ul className="list-disc list-inside ml-6">
-                  <li><span className="text-yellow-400">Mining Boost</span>: Reveals hints for a random word</li>
-                  <li><span className="text-blue-400">Diamond Vision</span>: Temporarily reveals all words</li>
-                  <li><span className="text-green-400">FUD Shield</span>: Adds extra time to the clock</li>
-                </ul>
-                <li>Complete each round by finding all words before time runs out</li>
-                <li>The difficulty increases with each round</li>
-                <li>Submit your score to the leaderboard after completing all rounds</li>
-              </ul>
-            </div>
-          )}
-          
-          {showSettings === 'sound' && (
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-bold">Sound Settings:</h3>
-                <button 
-                  className="px-3 py-1 rounded bg-background/70 hover:bg-background"
-                  onClick={toggleMute}
-                >
-                  {isMuted ? "Unmute 🔊" : "Mute 🔇"}
-                </button>
-              </div>
-              
-              {/* Volume Controls */}
-              <div className="flex flex-col gap-1">
-                <div className="text-sm">Volume: {Math.round(audioVolume * 100)}%</div>
-                <div className="flex items-center gap-2">
-                  <button 
-                    className="px-2 py-1 rounded bg-background/70 hover:bg-background disabled:opacity-50"
-                    disabled={isMuted || audioVolume <= 0}
-                    onClick={() => {
-                      const newVolume = Math.max(0, audioVolume - 0.1);
-                      setVolume(newVolume);
-                    }}
-                  >
-                    -
-                  </button>
-                  <div className="h-2 bg-gray-700 rounded-full flex-1 overflow-hidden">
-                    <div 
-                      className="h-full bg-primary" 
-                      style={{ width: `${audioVolume * 100}%` }}
-                    ></div>
-                  </div>
-                  <button 
-                    className="px-2 py-1 rounded bg-background/70 hover:bg-background disabled:opacity-50"
-                    disabled={isMuted || audioVolume >= 1}
-                    onClick={() => {
-                      const newVolume = Math.min(1, audioVolume + 0.1);
-                      setVolume(newVolume);
-                    }}
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-        </motion.div>
-      )}
+      {/* Settings Panel removed as requested */}
 
       {/* Game Content */}
       <motion.div
