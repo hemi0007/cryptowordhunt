@@ -129,12 +129,107 @@ const LandingPage = () => {
           />
         </motion.div>
 
-        {/* Spacer to push content apart */}
-        <div className="flex-grow"></div>
+        {/* Menu options between coins and play button */}
+        <motion.div
+          className="w-full max-w-md mx-auto mt-8 mb-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+        >
+          <div className="flex justify-center gap-4 mb-4">
+            <button
+              onClick={() => setActiveTab(activeTab === "howToPlay" ? null : "howToPlay")}
+              className={`px-4 py-2 rounded-lg transition-all ${
+                activeTab === "howToPlay" 
+                  ? "bg-primary text-primary-foreground neon-border" 
+                  : "bg-background/50 backdrop-blur-sm hover:bg-background/80"
+              }`}
+            >
+              How To Play
+            </button>
+            <button
+              onClick={() => setActiveTab(activeTab === "soundSettings" ? null : "soundSettings")}
+              className={`px-4 py-2 rounded-lg transition-all ${
+                activeTab === "soundSettings" 
+                  ? "bg-primary text-primary-foreground neon-border" 
+                  : "bg-background/50 backdrop-blur-sm hover:bg-background/80"
+              }`}
+            >
+              Sound Settings
+            </button>
+          </div>
+          
+          {/* Content area for selected tab */}
+          {activeTab && (
+            <div className="bg-background/50 backdrop-blur-md p-4 rounded-lg neon-border">
+              {activeTab === "howToPlay" && (
+                <div className="space-y-2 text-white">
+                  <h3 className="text-lg font-bold">How To Play:</h3>
+                  <ul className="list-disc list-inside space-y-1">
+                    <li>Find crypto words in the grid</li>
+                    <li>Click and drag to select words</li>
+                    <li>Use power-ups to help find words</li>
+                    <li>Complete 3 rounds of increasing difficulty</li>
+                    <li>Find all words before time runs out!</li>
+                  </ul>
+                </div>
+              )}
+              
+              {activeTab === "soundSettings" && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-bold">Sound Settings:</h3>
+                    <button 
+                      className="px-3 py-1 rounded bg-background/70 hover:bg-background"
+                      onClick={toggleMute}
+                    >
+                      {isMuted ? "Unmute 🔊" : "Mute 🔇"}
+                    </button>
+                  </div>
+                  
+                  {/* Volume Controls */}
+                  <div className="flex flex-col gap-1">
+                    <div className="text-sm">Volume: {Math.round(volume * 100)}%</div>
+                    <div className="flex items-center gap-2">
+                      <button 
+                        className="px-2 py-1 rounded bg-background/70 hover:bg-background disabled:opacity-50"
+                        disabled={isMuted || volume <= 0}
+                        onClick={() => {
+                          const newVolume = Math.max(0, volume - 0.1);
+                          setVolumeState(newVolume);
+                          setVolume(newVolume);
+                        }}
+                      >
+                        -
+                      </button>
+                      <div className="h-2 bg-gray-700 rounded-full flex-1 overflow-hidden">
+                        <div 
+                          className="h-full bg-primary" 
+                          style={{ width: `${volume * 100}%` }}
+                        ></div>
+                      </div>
+                      <button 
+                        className="px-2 py-1 rounded bg-background/70 hover:bg-background disabled:opacity-50"
+                        disabled={isMuted || volume >= 1}
+                        onClick={() => {
+                          const newVolume = Math.min(1, volume + 0.1);
+                          setVolumeState(newVolume);
+                          setVolume(newVolume);
+                        }}
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </motion.div>
         
         {/* Play button */}
         <motion.div
-          className="mb-4 text-center mt-8" 
+          className="mb-8 text-center" 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7 }}
