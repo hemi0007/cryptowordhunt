@@ -1,154 +1,156 @@
 import { useEffect, useRef, memo } from "react";
 
-// Further reduced symbol set for better performance
-const CRYPTO_SYMBOLS = "₿ΞÐΤΗ🚀";
+// Minimal symbol set for better performance
+const CRYPTO_SYMBOLS = "₿ΞÐΤΗ";
 
-// Hyper-optimized matrix background for faster loading and rendering
+// Mobile-optimized Matrix background for better performance
 const MatrixBackground = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   
   useEffect(() => {
-    // Delayed animation start - don't block initial page load
-    const initDelay = setTimeout(() => {
-      startMatrixAnimation();
-    }, 100);
+    // Delayed start to avoid blocking initial page load
+    const startDelay = setTimeout(() => {
+      initCanvas();
+    }, 200);
     
-    return () => clearTimeout(initDelay);
+    return () => clearTimeout(startDelay);
   }, []);
   
-  // Separate function for animation to reduce initial load time
-  const startMatrixAnimation = () => {
+  const initCanvas = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
+    
     const ctx = canvas.getContext("2d", { 
-      alpha: false,
-      desynchronized: true, // Hint for possible performance improvements
+      alpha: false, 
+      desynchronized: true 
     });
     if (!ctx) return;
-
-    // Track if component is mounted
+    
+    // Flag to track component mount state
     let isMounted = true;
     
-    // Set canvas dimensions at a lower resolution for better performance
-    const resizeCanvas = () => {
-      if (!isMounted || !canvas) return;
+    // Detect mobile once at initialization
+    const isMobile = window.innerWidth < 768;
+    
+    // Configure performance settings based on device
+    const settings = {
+      fontSize: isMobile ? 14 : 16,
+      density: isMobile ? 0.12 : (window.innerWidth > 1200 ? 0.2 : 0.18),
+      frameInterval: isMobile ? 150 : 80, // ms between frames (lower is faster)
+      skipFrames: isMobile ? 2 : 1, // Process only every Nth column per frame
+      fadeOpacity: isMobile ? 0.15 : 0.1,
+    };
+    
+    // Setup canvas with proper dimensions
+    const setupCanvas = () => {
+      if (!canvas || !isMounted) return;
       
-      // Reduce resolution further for mobile devices and high DPI screens
-      // This improves performance significantly on mobile
-      const isMobile = window.innerWidth < 768;
-      const scaleFactor = isMobile ? 0.3 : (window.devicePixelRatio > 1 ? 0.4 : 0.6);
+      // Use lower resolution for better performance
+      const scaleFactor = isMobile ? 0.25 : (window.devicePixelRatio > 1 ? 0.4 : 0.6);
+      
       const width = Math.floor(window.innerWidth * scaleFactor);
       const height = Math.floor(window.innerHeight * scaleFactor);
       
-      // Only resize if needed
       if (canvas.width !== width || canvas.height !== height) {
         canvas.width = width;
         canvas.height = height;
-        canvas.style.width = `${window.innerWidth}px`;
-        canvas.style.height = `${window.innerHeight}px`;
+        canvas.style.width = '100vw';
+        canvas.style.height = '100vh';
       }
     };
-
-    // Initial size
-    resizeCanvas();
     
-    // Ultra-throttled resize listener - only respond every 500ms max
-    let resizeTimeout: number | null = null;
+    // Initial setup
+    setupCanvas();
+    
+    // Handle resizing
+    let resizeTimer: number | null = null;
     const handleResize = () => {
-      if (resizeTimeout) clearTimeout(resizeTimeout);
-      resizeTimeout = window.setTimeout(resizeCanvas, 500);
+      if (resizeTimer) window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(setupCanvas, 500);
     };
-    window.addEventListener("resize", handleResize);
-
-    // Matrix rain setup with mobile optimizations
-    const fontSize = 16;
-    // Detect mobile and reduce density/quality for better performance
-    const isMobile = window.innerWidth < 768;
-    const density = isMobile ? 0.15 : (window.innerWidth > 1200 ? 0.25 : 0.2);
-    const columns = Math.ceil((canvas.width / fontSize) * density);
-    const drops: number[] = Array(columns).fill(1);
+    window.addEventListener('resize', handleResize);
     
-    // Pre-generate all random symbols just once
-    const symbolCache = CRYPTO_SYMBOLS.split('');
+    // Setup matrix rain
+    const columns = Math.ceil((canvas.width / settings.fontSize) * settings.density);
+    const drops: number[] = Array(columns).fill(0);
     
-    // Use much lower frame rate on mobile
-    let lastFrameTime = 0;
-    // Even lower FPS on mobile (8fps vs 14fps)
-    const frameRate = isMobile ? 120 : 70;
+    // Prepare symbols
+    const symbols = CRYPTO_SYMBOLS.split('');
     
-    // Ultra optimized animation function
-    const drawMatrix = (timestamp: number) => {
+    // Animation state
+    let lastTime = 0;
+    
+    // Optimized drawing function
+    const draw = (timestamp: number) => {
       if (!isMounted) return;
       
-      // Skip frames aggressively
-      if (timestamp - lastFrameTime < frameRate) {
-        requestAnimationFrame(drawMatrix);
+      // Throttle frame rate
+      if (timestamp - lastTime < settings.frameInterval) {
+        requestAnimationFrame(draw);
         return;
       }
       
-      lastFrameTime = timestamp;
+      lastTime = timestamp;
       
-      // More transparent fade for better performance
-      ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+      // Clear with fade effect
+      ctx.fillStyle = `rgba(0, 0, 0, ${settings.fadeOpacity})`;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-
+      
       // Set text properties once
-      ctx.fillStyle = "#00ff00";
-      ctx.font = `${fontSize}px monospace`;
-
-      // Draw only 50% of characters each frame for better performance
-      for (let i = 0; i < drops.length; i += 2) {
-        // Get a random symbol from our tiny cache
-        const symbol = symbolCache[Math.floor(Math.random() * symbolCache.length)];
-        const x = i * (fontSize / density);
-        const y = drops[i] * fontSize;
-
-        // Only draw if fully on screen (stricter check)
-        if (y > fontSize && y < canvas.height - fontSize) {
+      ctx.fillStyle = '#0f0';
+      ctx.font = `${settings.fontSize}px monospace`;
+      
+      // Process subset of columns each frame
+      for (let i = 0; i < columns; i += settings.skipFrames) {
+        // Get random symbol
+        const symbol = symbols[Math.floor(Math.random() * symbols.length)];
+        
+        // Calculate position
+        const x = i * settings.fontSize;
+        const y = drops[i] * settings.fontSize;
+        
+        // Draw symbol if on screen
+        if (y > 0 && y < canvas.height) {
           ctx.fillText(symbol, x, y);
         }
-
-        // Simplified physics with less randomness
-        if (y > canvas.height) {
+        
+        // Update drop position with simplified logic
+        if (Math.random() > 0.975 || y > canvas.height) {
           drops[i] = 0;
         } else {
           drops[i]++;
         }
       }
       
-      requestAnimationFrame(drawMatrix);
+      requestAnimationFrame(draw);
     };
-
-    // Start animation with a slight delay
-    requestAnimationFrame(drawMatrix);
-
+    
+    // Start animation
+    requestAnimationFrame(draw);
+    
     // Cleanup
     return () => {
       isMounted = false;
-      window.removeEventListener("resize", handleResize);
-      if (resizeTimeout) clearTimeout(resizeTimeout);
+      window.removeEventListener('resize', handleResize);
+      if (resizeTimer) window.clearTimeout(resizeTimer);
     };
   };
-
-  // Use React.memo to prevent unnecessary re-renders
+  
   return (
     <canvas
       ref={canvasRef}
-      className="matrix-container fixed top-0 left-0 w-full h-full -z-10"
       aria-hidden="true"
-      style={{ 
+      style={{
         position: 'fixed',
-        top: 0, 
+        top: 0,
         left: 0,
         width: '100%',
         height: '100%',
         zIndex: -10,
-        opacity: 0.8 // Slightly transparent for better performance
+        opacity: 0.75,
       }}
     />
   );
 };
 
-// Memoize component to prevent re-renders
 export default memo(MatrixBackground);
